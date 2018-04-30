@@ -1,2 +1,5 @@
-FURI
-FURI
+# FURI project
+
+Progress for my sophomore year project...
+
+To be renamed...
