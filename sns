@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+from pprint import pprint
+
+function_template = 'lambda x : {}'
+
+atoms = ['x'] + list(map(str, range(1, 3)))
+operators = ['+', '-', '*']
+commutative = ['+', '*']
+
+# atom = any_of(atom)
+# expression = atom 
+#            | atom + atom
+#            | atom * atom
+#            | atom - atom
+
+# range = range(atom)
+# list = [expression] or range()
+# concat = concat(list, list, ..) (up to three lists)
+
+def gen_atoms():
+    for atom in atoms:
+        yield atom
+
+def gen_expression():
+    for a in atoms:
+        yield a
+        for b in atoms:
+            for operator in operators:
+                if a == 'x' or b == 'x':
+                    if operator in commutative and a > b:
+                        yield '{} {} {}'.format(a, operator, b)
+                    elif operator not in commutative:
+                        yield '{} {} {}'.format(a, operator, b)
+
+def gen_range():
+    for a in gen_expression():
+        for b in gen_expression():
+            yield 'list(range({}, {}))'.format(a, b)
+
+def gen_concat():
+    for a in gen_expression():
+        for b in gen_expression():
+            for c in gen_expression():
+                yield '[{}] + [{}] + [{}]'.format(a, b, c)
+
+def gen_all():
+    return (list(gen_expression()) + 
+            list(gen_range()) + 
+            list(gen_concat()))
+
+def flatten(l):
+    if type(l) == int:
+        return [l]
+    if len(l) > 0 and type(l[0]) == int:
+        return l
+    return [item for sublist in l for item in sublist]
+
+def functify(body, do_flatten=False):
+    code = function_template.format(body)
+    f = eval(code)
+    elements = [f(x) for x in range(10)]
+    return (code, flatten(elements) if do_flatten else elements)
+
+def main():
+    bodies = list(gen_all())
+    print(len(bodies))
+    pprint(list(map(functify, gen_all())))
+
+if __name__ == '__main__':
+    main()
