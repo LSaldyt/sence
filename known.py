@@ -54,3 +54,4 @@ def process(s):
     return lines
 
 seqsee_analyzed = {k : process(v) for k, v in seqsee_analyzed.items()}
+known_lookup = {tuple(subv) : k for k, v in seqsee_analyzed.items() for subv in v}

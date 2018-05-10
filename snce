@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from pprint import pprint
-from known import seqsee_analyzed
+from known import seqsee_analyzed, known_lookup
 
 function_template = 'lambda x : {}'
 
@@ -56,17 +56,30 @@ def flatten(l):
         return l
     return [item for sublist in l for item in sublist]
 
-def functify(body, do_flatten=False):
+def functify(body, do_flatten=False, a=1, b=3):
     code = function_template.format(body)
     f = eval(code)
-    elements = [f(x) for x in range(10)]
+    elements = [f(x) for x in range(a, b)]
     return (code, flatten(elements) if do_flatten else elements)
 
+def match(found, known):
+    for a, b in zip(found, known):
+        if a != b:
+            return False
+    return True
+
 def main():
-    bodies = list(gen_all())
-    print(len(bodies))
-    pprint(list(map(functify, gen_all())))
-    pprint(seqsee_analyzed)
+    bodies    = gen_all()
+    generated = [functify(body, do_flatten=True, a=1, b=6) for body in bodies]
+    #pprint(generated)
+    pprint(known_lookup)
+    for code, elements in generated:
+        if len(elements) == 0:
+            continue
+        for known in known_lookup.keys():
+            if match(elements, known):
+                pprint(code)
+                pprint(elements)
 
 if __name__ == '__main__':
     main()
