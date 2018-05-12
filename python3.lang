@@ -1,0 +1,51 @@
+__separators__=''
+__taggers__={}
+statement: `@val (main | class | if | whileloop | forloop | function | functioncall | memberaccess | assignment | pass | flowstmt | import | comment)` 
+value: `@val (lambda | vector | functioncall | elementaccess | memberaccess | basevalue | parenexpr)`
+
+string: `@val string`
+
+#lvalue: `@val (functioncall | **)`
+#
+#elementaccess: `@val lvalue` '[' `@access expression` ']'
+#
+#memberaccess: `@access lvalue` '.' `@member functioncall | identifier **` 
+#
+#functioncall: `@identifier identifier **` '(' `@args optional sep ',' expression` ')'
+#
+#vector: '[' `@values optional sep ',' expression` ']'
+#
+#expression: `@body sepWithKeep operator ** value`
+#boolexpression: `@body sepWithKeep logicaloperator ** expression` 
+#
+#parenexpr: '(' `@expr expression` ')'
+#
+#main: 'if' '__name__' '==' `literal string` ':' `@body *statement` 'end'
+#
+#function: 'def' `@identifier identifier **` '(' `@args optional sep ',' identifier **` ')' ':' `@body *statement` 'end' 
+#
+#flow_stmt: `@val return | break | continue`
+#
+#pass: 'pass'
+#
+#return: 'return' `@expression expression`
+#
+#break: 'break'
+#
+#continue: 'continue'
+#
+#assignment: `@lval identifier **` `@op '='` `@rval boolexpression | expression`
+#
+#import: `@val normal_import | import_from`
+#normal_import: 'import' `@imports sep ',' identifier **` `@qualifier optional inOrder !identifier as identifier **`
+#import_from: 'from' `@source identifier **` 'import' `@import identifier **` `@qualifier optional inOrder !identifier as identifier **`
+#
+#comment: `@comment comment **`
+#
+#if: 'if' `@condition boolexpression` ':' `@body *statement` 'end' `@branches optional branch`
+#
+#branch: `@elifs *elif` `@else optional else`
+#
+#elif: 'elif' `@condition boolexpression` ':' `@body *statement` 'end'
+#
+#else: 'else' ':' `@body *statement` 'end'
