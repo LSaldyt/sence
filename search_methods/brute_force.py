@@ -1,5 +1,5 @@
 from pprint import pprint
-from known import seqsee_analyzed, known_lookup
+from .known import seqsee_analyzed, known_lookup
 
 function_template = 'lambda x : {}'
 
