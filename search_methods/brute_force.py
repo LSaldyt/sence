@@ -1,5 +1,7 @@
 from pprint import pprint
 from .known import seqsee_analyzed, known_lookup
+from .space import better_distance
+from .utils import flatten
 
 function_template = 'lambda x : {}'
 
@@ -73,13 +75,6 @@ def gen_all():
             list(gen_concat()) +
             list(gen_repeat()))
 
-def flatten(l):
-    if type(l) == int:
-        return [l]
-    if len(l) > 0 and type(l[0]) == int:
-        return l
-    return [item for sublist in l for item in sublist]
-
 def functify(body, do_flatten=False, a=1, b=3):
     code = function_template.format(body)
     f = eval(code)
@@ -116,8 +111,9 @@ def brute_force():
         if len(elements) <= 1:
             continue
         for known in known_lookup.keys():
-            #print('Distance from {}:'.format(known))
-            #print(distance(elements, known))
+            print('Distance {} from {}:'.format(elements, known))
+            print(distance(elements, known))
+            print(better_distance(elements, known))
             if match(elements, known):
                 found[tuple(elements)] = code
                 #print(code)
