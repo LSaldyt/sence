@@ -4,7 +4,7 @@ from known import seqsee_analyzed, known_lookup
 
 function_template = 'lambda x : {}'
 
-atoms = ['x'] + list(map(str, range(1, 7)))
+atoms = ['x'] + list(map(str, range(1, 3)))
 operators = ['+', '-', '*']
 commutative = ['+', '*']
 
@@ -93,26 +93,38 @@ def match(found, known):
             return False
     return True
 
+def distance(found, known):
+    result = 0
+    for a, b in zip(found, known):
+        result += abs(a - b)
+    return result
+
 def match_in(a, bs):
     for b in bs:
         if match(a, b):
             return b
     return None
 
-def main():
+def brute_force():
     bodies    = gen_all()
     print('Generator created')
-    generated = [functify(body, do_flatten=True, a=1, b=6) for body in bodies]
+    generated = (functify(body, do_flatten=True, a=1, b=6) for body in bodies)
     print('Generation done')
     found = dict()
+    i = 0
     for code, elements in generated:
+        i += 1
         if len(elements) <= 1:
             continue
         for known in known_lookup.keys():
+            #print('Distance from {}:'.format(known))
+            #print(distance(elements, known))
             if match(elements, known):
                 found[tuple(elements)] = code
-                #pprint(code)
-                #pprint(elements)
+                #print(code)
+                #print(elements)
+        print('{}\r'.format(i), end='')
+    print(i)
     print('Progress:')
     for known, label in known_lookup.items():
         key = match_in(known, found.keys())
@@ -124,7 +136,8 @@ def main():
             check = 'x'
         print('{} {}: {}\n    ({})'.format(check, label, known, code))
 
-
+def main():
+    brute_force()
 
 if __name__ == '__main__':
     main()

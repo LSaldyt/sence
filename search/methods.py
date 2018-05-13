@@ -105,8 +105,6 @@ def branch_and_bound(branches, start, end):
 
     return paths[end][1]
 
-
-
 def astar(branches, start, end, distance=point_distance):
     paths = { start : Path(0, [start])}
 
