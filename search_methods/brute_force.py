@@ -1,6 +1,6 @@
 from pprint import pprint
 from .known import seqsee_analyzed, known_lookup
-from .space import better_distance
+from .heuristics import better_distance
 from .utils import flatten
 
 function_template = 'lambda x : {}'

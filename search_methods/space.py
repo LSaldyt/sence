@@ -37,7 +37,7 @@ class Seq:
         return self._seq_expand('', self.items)
 
 class Many:
-    Limit = 10
+    Limit = 2
     def __init__(self, item):
         self.item = item
 
@@ -61,11 +61,11 @@ expression = Any(Get('atom'),
                  Seq(Get('atom'), ' - ', Get('atom'))),
 
 repeat       = Seq('[', Get('atom'),'] * ', Get('atom')),
-range_def    = Seq('range(', Get('atom'), ')'),
+range_def    = Seq('list(range(', Get('atom'), '))'),
 list_literal = Seq('[', Get('atom'), Many(Seq(', ', Get('atom'))), ']'),
 
 list_def     = Any(Get('list_literal'), Get('range_def'), Get('repeat')),
-concat_def   = Seq(Get('list_def'), Many(Seq(' + ', Get('list_def')))),
+concat_def   = Seq('(', Get('list_def'), ')', Many(Seq(' + (', Get('list_def'), ')'))),
 ))
 
 pprint(python_grammar)
@@ -78,5 +78,5 @@ show_k = lambda x : show(python_grammar[x])
 #show_k('repeat')
 #show_k('list_literal')
 #show_k('list_def')
-print(len(list(expand(python_grammar['list_def']))))
-#show_k('concat_def')
+#print(len(list(expand(python_grammar['list_def']))))
+show_k('concat_def')
