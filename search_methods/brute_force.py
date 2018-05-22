@@ -5,10 +5,9 @@ from .known import seqsee_analyzed, known_lookup
 from .heuristics import better_distance
 from .utils import flatten
 
-function_template = 'lambda x : {}'
+from .space import pygen
 
-def pygen(name):
-    return python_grammar[name].expand()
+function_template = 'lambda x : {}'
 
 def functify(body, do_flatten=False, a=1, b=3):
     code = function_template.format(body)
