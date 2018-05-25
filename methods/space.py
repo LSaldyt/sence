@@ -16,7 +16,7 @@ def code(item):
     if hasattr(item, '_code'):
         return item._code()
     else:
-        return item
+        return str(item)
 
 class Any:
     def __init__(self, *items):
@@ -24,6 +24,9 @@ class Any:
         assert len(self.items) > 0, 'Empty items given to "Any" class'
         self.index = 0
         self.state = self.items[self.index]
+
+    def __str__(self):
+        return 'Any({})'.format(', '.join(map(str, self.items)))
 
     def _expand(self):
         for item in self.items:
@@ -44,6 +47,9 @@ class Seq:
     def __init__(self, *items):
         self.items = list(items)
         self.state = self.items # necessary
+
+    def __str__(self):
+        return 'Seq({})'.format(''.join(map(str, self.state)))
 
     def _seq_expand(self, s, remaining):
         if len(remaining) == 1:
@@ -67,7 +73,11 @@ class Many:
     def __init__(self, item):
         self.item = item
         self.amount = 0
-        self.state = [self.item] * self.amount
+        self.state = self.item
+        self.internal = [self.item] * self.amount
+
+    def __str__(self):
+        return 'Many({})'.format(self.item)
 
     def _expand(self):
         for i in range(Many.Limit):
@@ -75,54 +85,73 @@ class Many:
                 yield ''.join([exp] * i)
 
     def _code(self):
-        return ''.join(map(code, self.state))
+        return ''.join(map(code, self.internal))
 
     def increase(self):
         self.amount += 1
-        self.state = [self.item] * self.amount
+        self.internal = [self.item] * self.amount
 
     def decrease(self):
         if self.amount <= 0:
             self.amount -= 1
-        self.state = [self.item] * self.amount
+        self.internal = [self.item] * self.amount
 
 class Get:
     def __init__(self, item):
         self.item = item
-        self.state = self.item # necessary
+
+    @property
+    def state(self):
+        return python_grammar[self.item]
+
+    def __str__(self):
+        return str(self.state)
 
     def _expand(self):
-        return expand(python_grammar[self.item])
+        return expand(self.state)
 
     def _code(self):
-        return code(python_grammar[self.state])
+        return code(self.state)
 
-def recursive_collect_operators(item, given=None, level=0):
+def recursive_collect_operators(item, given=None, indices=tuple()):
     if given is None:
-        given = defaultdict(list)
+        given = dict()
 
-    if isinstance(item, str):
+    if isinstance(item, (str, list)):
         return given
-
-    operators = collect_operators(item)
-    if len(operators[1]) > 0:
-        given[level].append(operators)
+    given[indices] = collect_operators(item)
 
     if isinstance(item.state, (list,)):
-        for substate in item.state:
-            recursive_collect_operators(substate, given, level + 1)
+        for i, substate in enumerate(item.state):
+            nextindices = indices + (i,)
+            recursive_collect_operators(substate, given, nextindices)
     else:
-        recursive_collect_operators(item.state, given, level + 1)
+        nextindices = indices + (-1,)
+        recursive_collect_operators(item.state, given, nextindices)
     return given
 
 def collect_operators(state):
-    return (state, [func for func in dir(state) if callable(getattr(state, func)) and not func.startswith('_')])
+    return [func for func in dir(state) if callable(getattr(state, func)) and not func.startswith('_')]
 
 def operators(item):
-    for level, outervalue in recursive_collect_operators(item).items():
-        for key, value in outervalue:
-            for operator in value:
-                yield (key, operator)
+    print(item)
+    pprint(recursive_collect_operators(item))
+    for indices, operators in recursive_collect_operators(item).items():
+            for operator in operators:
+                yield (indices, operator)
+
+def get_state(state, indices):
+    #print('Beginning get state')
+    #print(repr(state))
+    for index in indices:
+        print(index)
+        if index == -1:
+            state = state.state
+        else:
+            state = state.state[index]
+        #print(repr(state))
+    return state
+
 
 python_grammar.update(dict(
 atom = Any('x', *map(str, range(1, 3))),
@@ -131,7 +160,7 @@ expression = Any(Get('atom'),
                  #Seq(Get('atom'), ' * ', Get('atom')),
                  #Seq(Get('atom'), ' - ', Get('atom'))),
 
-repeat       = Seq('[', Get('expression'),'] * (', Get('expression'), ')'),
+repeat       = Seq('(', '[', Get('expression'),'] * (', Get('expression'), '))'),
 range_def    = Seq('list(range(', Get('expression'), '))'),
 list_literal = Seq('[', Get('expression'), Many(Seq(', ', Get('expression'))), ']'),
 
@@ -146,18 +175,30 @@ concat_def   = Any(Seq('(', Get('list_def'), ')', Many(Seq(' + (', Get('list_def
 def pygen(name):
     return python_grammar[name]._expand()
 
-def space(start=python_grammar['concat_def'], level=4, current=None):
+def space(start=python_grammar['concat_def'], level=1, current=None):
     if current is None:
         current = set()
-    if level == 0:
-        return current
-    else:
-        current.add(code(start))
-        for key, operator in operators(start):
-            state = deepcopy(start)
-            getattr(key, operator)()
-            current.add(code(state))
-            space(state, level-1, current)
+    space = [start]
+    current.add(code(start))
+    while level > 0:
+        nextspace = []
+        for item in space:
+            for indices, op in operators(item):
+                nitem = deepcopy(item)
+                try:
+                    state = get_state(nitem, indices)
+                    getattr(state, op)()
+                    nextspace.append(nitem)
+                    current.add(code(nitem))
+                except AttributeError:
+                    pass
+                except TypeError:
+                    pass
+                except IndexError:
+                    pass
+        space = nextspace
+        level -= 1
     return current
 
-pprint(space())
+#pprint(space(level=5))
+pprint(space(python_grammar['atom'], level=5))

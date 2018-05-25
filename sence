@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from search_methods.brute_force import brute_force
+from methods.brute_force import brute_force
 
 def main():
     brute_force()
