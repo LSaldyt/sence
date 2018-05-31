@@ -1,0 +1,3 @@
+__separators__='x','y'
+__taggers__={'a':'b'}
+list:'a', 'NEWLINE'

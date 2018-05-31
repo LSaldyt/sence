@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from search import demo
+from reference import demo
 
 def main():
     demo()

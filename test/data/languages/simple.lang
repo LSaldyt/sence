@@ -1,0 +1,6 @@
+__separators__='!','@','-'
+__taggers__={'a':'b','c':'d'}
+a:`@n ('b'|'c')`
+e:'f'
+g:'h i'
+j:`@k 'l'`

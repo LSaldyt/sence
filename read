@@ -1,0 +1,3 @@
+#!/bin/bash
+lein marg
+firefox docs/uberdoc.html
