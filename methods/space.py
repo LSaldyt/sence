@@ -2,7 +2,7 @@ from pprint import pprint
 import types
 
 from collections import defaultdict
-from copy import deepcopy
+from copy import deepcopy, copy
 
 python_grammar = dict()
 
@@ -99,10 +99,13 @@ class Many:
 class Get:
     def __init__(self, item):
         self.item = item
+        self.copy = None
 
     @property
     def state(self):
-        return python_grammar[self.item]
+        if self.copy is None:
+            self.copy = deepcopy(python_grammar[self.item])
+        return self.copy
 
     def __str__(self):
         return str(self.state)
@@ -121,21 +124,22 @@ def recursive_collect_operators(item, given=None, indices=tuple()):
         return given
     given[indices] = collect_operators(item)
 
-    if isinstance(item.state, (list,)):
-        for i, substate in enumerate(item.state):
+    n = item.state
+    if isinstance(n, (list,)):
+        for i, substate in enumerate(n):
             nextindices = indices + (i,)
             recursive_collect_operators(substate, given, nextindices)
     else:
         nextindices = indices + (-1,)
-        recursive_collect_operators(item.state, given, nextindices)
+        recursive_collect_operators(n, given, nextindices)
     return given
 
 def collect_operators(state):
     return [func for func in dir(state) if callable(getattr(state, func)) and not func.startswith('_')]
 
 def operators(item):
-    print(item)
-    pprint(recursive_collect_operators(item))
+    #print(item)
+    #pprint(recursive_collect_operators(item))
     for indices, operators in recursive_collect_operators(item).items():
             for operator in operators:
                 yield (indices, operator)
@@ -144,7 +148,7 @@ def get_state(state, indices):
     #print('Beginning get state')
     #print(repr(state))
     for index in indices:
-        print(index)
+        #print(index)
         if index == -1:
             state = state.state
         else:
@@ -154,14 +158,15 @@ def get_state(state, indices):
 
 
 python_grammar.update(dict(
-atom = Any('x', *map(str, range(0, 2))),
+atom = Any('x', *map(str, range(0, 10))),
 expression = Any(Get('atom'),
-                 Seq(Get('atom'), ' + ', Get('atom'))),
-                 #Seq(Get('atom'), ' * ', Get('atom')),
-                 #Seq(Get('atom'), ' - ', Get('atom'))),
+                 Seq(Get('atom'), ' + ', Get('atom')),
+                 Seq(Get('atom'), ' * ', Get('atom')),
+                 Seq(Get('atom'), ' - ', Get('atom'))),
 
 repeat       = Seq('(', '[', Get('expression'),'] * (', Get('expression'), '))'),
-range_def    = Seq('list(range(', Get('expression'), '))'),
+range_def    = Any(Seq('list(range(', Get('expression'), '))'),
+                   Seq('list(range(', Get('expression'), ', ', Get('expression'), '))')),
 list_literal = Seq('[', Get('expression'), Many(Seq(', ', Get('expression'))), ']'),
 
 list_def     = Any(Get('list_literal'), Get('range_def'), Get('repeat')),
@@ -184,8 +189,8 @@ def space(start=python_grammar['concat_def'], level=1, current=None):
         nextspace = []
         for item in space:
             for indices, op in operators(item):
-                nitem = deepcopy(item)
                 try:
+                    nitem = deepcopy(item)
                     state = get_state(nitem, indices)
                     getattr(state, op)()
                     nextspace.append(nitem)
@@ -201,4 +206,8 @@ def space(start=python_grammar['concat_def'], level=1, current=None):
     return current
 
 #pprint(space(level=5))
-pprint(space(python_grammar['atom'], level=5))
+#pprint(space(python_grammar['atom'], level=5))
+#pprint(space(python_grammar['expression'], level=2))
+#pprint(space(python_grammar['expression'], level=5))
+#pprint(space(python_grammar['list_def'], level=5))
+pprint(space(python_grammar['concat_def'], level=4))
