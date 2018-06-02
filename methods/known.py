@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+"""
 seqsee_analyzed = dict(
 standard = '''
 1 2 3
@@ -46,6 +46,12 @@ human_comparison = '''
 1 7 19 2 8 19 20 3 9 19 20 21
 1 7 19 2 8 20 21 3 9 22 23 24
 ''')
+
+"""
+seqsee_analyzed = dict()
+
+with open('problems.txt') as infile:
+    seqsee_analyzed['all'] = infile.read()
 
 def process(s):
     lines = filter(lambda line : len(line) > 0, s.split('\n'))

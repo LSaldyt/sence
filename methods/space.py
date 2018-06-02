@@ -69,7 +69,7 @@ class Seq:
         return ''.join(map(code, self.state))
 
 class Many:
-    Limit = 3
+    Limit = 2
     def __init__(self, item):
         self.item = item
         self.amount = 0
@@ -154,7 +154,7 @@ def get_state(state, indices):
 
 
 python_grammar.update(dict(
-atom = Any('x', *map(str, range(1, 3))),
+atom = Any('x', *map(str, range(0, 2))),
 expression = Any(Get('atom'),
                  Seq(Get('atom'), ' + ', Get('atom'))),
                  #Seq(Get('atom'), ' * ', Get('atom')),
