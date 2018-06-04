@@ -4,6 +4,8 @@ import types
 from collections import defaultdict
 from copy import deepcopy, copy
 
+_N = 20
+
 python_grammar = dict()
 
 def expand(item):
@@ -26,7 +28,10 @@ class Any:
         self.state = self.items[self.index]
 
     def __str__(self):
-        return 'Any({})'.format(', '.join(map(str, self.items)))
+        return 'Any({})'.format('{}..{}'.format(self.items[0], self.items[-1]))
+
+    def __hash__(self):
+        return hash(str(self))
 
     def _expand(self):
         for item in self.items:
@@ -51,6 +56,9 @@ class Seq:
     def __str__(self):
         return 'Seq({})'.format(''.join(map(str, self.state)))
 
+    def __hash__(self):
+        return hash(str(self))
+
     def _seq_expand(self, s, remaining):
         if len(remaining) == 1:
             last = remaining[0]
@@ -69,7 +77,7 @@ class Seq:
         return ''.join(map(code, self.state))
 
 class Many:
-    Limit = 2
+    Limit = _N
     def __init__(self, item):
         self.item = item
         self.amount = 0
@@ -78,6 +86,9 @@ class Many:
 
     def __str__(self):
         return 'Many({})'.format(self.item)
+
+    def __hash__(self):
+        return hash(str(self))
 
     def _expand(self):
         for i in range(Many.Limit):
@@ -109,6 +120,9 @@ class Get:
 
     def __str__(self):
         return str(self.state)
+
+    def __hash__(self):
+        return hash(str(self))
 
     def _expand(self):
         return expand(self.state)
@@ -158,7 +172,7 @@ def get_state(state, indices):
 
 
 python_grammar.update(dict(
-atom = Any('x', *map(str, range(0, 10))),
+atom = Any('x', *map(str, range(0, _N))),
 expression = Any(Get('atom'),
                  Seq(Get('atom'), ' + ', Get('atom')),
                  Seq(Get('atom'), ' * ', Get('atom')),
@@ -184,7 +198,7 @@ def space(start=python_grammar['concat_def'], level=1, current=None):
     if current is None:
         current = set()
     space = [start]
-    current.add(code(start))
+    current.add(start)
     while level > 0:
         nextspace = []
         for item in space:
@@ -194,7 +208,7 @@ def space(start=python_grammar['concat_def'], level=1, current=None):
                     state = get_state(nitem, indices)
                     getattr(state, op)()
                     nextspace.append(nitem)
-                    current.add(code(nitem))
+                    current.add(nitem)
                 except AttributeError:
                     pass
                 except TypeError:
@@ -205,9 +219,3 @@ def space(start=python_grammar['concat_def'], level=1, current=None):
         level -= 1
     return current
 
-#pprint(space(level=5))
-#pprint(space(python_grammar['atom'], level=5))
-#pprint(space(python_grammar['expression'], level=2))
-#pprint(space(python_grammar['expression'], level=5))
-#pprint(space(python_grammar['list_def'], level=5))
-pprint(space(python_grammar['concat_def'], level=4))
