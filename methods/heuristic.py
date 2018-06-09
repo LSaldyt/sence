@@ -1,9 +1,12 @@
 from .space import space, python_grammar
 from .check import check, listify1
+from .utils import flatten
 
 from pprint import pprint
 
 def list_distance(found, known):
+    print(found)
+    print(known)
     distances  = [abs(a - b) for a, b in zip(found, known)]
     total = 0
     multiplier = 10
@@ -17,7 +20,7 @@ def list_distance(found, known):
 def ast_distance(a, b):
     print(listify1(a))
     print(b)
-    return list_distance(listify1(a), b)
+    return list_distance(flatten(listify1(a)), b)
 
 def branches(current, goal):
     # goal not used
