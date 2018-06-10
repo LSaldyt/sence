@@ -5,43 +5,35 @@ from .utils import flatten
 from pprint import pprint
 
 def list_distance(found, known):
-    print(found)
-    print(known)
+    #print(found)
+    #print(known)
     distances  = [abs(a - b) for a, b in zip(found, known)]
     total = 0
-    multiplier = 10
+    factor = 10
+    multiplier = factor
     for d in reversed(distances):
         total += multiplier * d
-        multiplier *= 10
-    total += 10 * multiplier * abs(len(found) - len(known))
-    total = total / (10**(len(distances) + 2))
+        multiplier *= factor
+    total += (multiplier * factor) * abs(len(found) - len(known))
+    total = total / (factor**(len(distances) + 2))
     return total
 
+#def list_distance(found, known):
+#    dist = abs(len(found) - len(known))
+#    dist += sum(abs(a - b) for a, b in zip(found, known))
+#    return dist
+
 def ast_distance(a, b):
-    print(listify1(a))
-    print(b)
-    return list_distance(flatten(listify1(a)), b)
+    #print(listify1(a))
+    #print(b)
+    #return list_distance(flatten(listify1(a)), b)
+    return list_distance(a, b)
 
 def branches(current, goal):
     # goal not used
     return space(current, level=1)
 
-#def astar(branches, start, end, distance=point_distance):
-#    paths = { start : Path(0, [start])}
-#
-#    heuristic = lambda point : paths[point].len * distance(point, end)
-#
-#    while end not in paths:
-#        # min element of keys sorted by heuristic:
-#        shortestKey = min([key for key in paths], key=heuristic)
-#
-#        for adj in branches(shortestKey, end):
-#            l = paths[shortestKey].len + 1
-#            # add the path if it doesn't exist, update it if a shorter one is found:
-#            if adj not in paths or paths[adj].len > l:
-#                paths[adj] = Path(l, paths[shortestKey].path + [adj])
-#        del paths[shortestKey] # the path to the previously shortest node is now unneeded
-#    return paths[end].path
+to_seq = lambda x : tuple(flatten(listify1(x)))
 
 def astar(branches, start, end, distance=ast_distance):
     '''
@@ -52,24 +44,28 @@ def astar(branches, start, end, distance=ast_distance):
     distance is a heuristic function:
     dist(current, end) -> num
     '''
-    paths     = {start : [start]}
-    heuristic = lambda node : len(paths[node]) * distance(node, end)
 
-    while True:
+    print(tuple(end))
+    seen      = set()
+    paths     = {to_seq(start) : start}
+    heuristic = lambda node : paths[node].complexity() * distance(node, end)
+
+    while tuple(end) not in paths:
         shortest = min(paths.keys(), key=heuristic)
+        smallest = heuristic(shortest)
         print(shortest)
-        #items = list(map(listify1, branches(start, end)))
-        #pprint(items)
-        items = branches(start, end)
-        for item in branches(start, end):
-            if listify1(item) == end:
-                return paths[shortest] + item
-            l = len(paths[shortest]) + 1
-            if item not in paths or len(paths[item]) > 1:
-                paths[item] = paths[shortest] + [item]
-                #print(item)
-                #print(heuristic(item))
+        print(smallest)
+
+        seen.add(shortest)
+
+        for item in branches(paths[shortest], end):
+            l = item.complexity()
+            if (item not in paths or item.complexity() > l) and \
+                to_seq(item) not in seen:
+                paths[to_seq(item)] = item
         del paths[shortest]
+
+    return paths[tuple(end)]
 
 #def ast_distance(a, b):
 

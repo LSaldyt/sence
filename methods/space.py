@@ -48,6 +48,9 @@ class Any:
             self.index -= 1
         self.state = self.items[self.index]
 
+    def complexity(self):
+        return 1
+
 class Seq:
     def __init__(self, *items):
         self.items = list(items)
@@ -75,6 +78,9 @@ class Seq:
 
     def _code(self):
         return ''.join(map(code, self.state))
+
+    def complexity(self):
+        return sum(x.complexity() for x in self.items)
 
 class Many:
     Limit = _N
@@ -107,6 +113,9 @@ class Many:
             self.amount -= 1
         self.internal = [self.item] * self.amount
 
+    def complexity(self):
+        return self.item.complexity() * self.amount
+
 class Get:
     def __init__(self, item):
         self.item = item
@@ -129,6 +138,9 @@ class Get:
 
     def _code(self):
         return code(self.state)
+
+    def complexity(self):
+        return self.state.complexity()
 
 def recursive_collect_operators(item, given=None, indices=tuple()):
     if given is None:
