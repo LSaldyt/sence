@@ -1,6 +1,8 @@
 (ns sence.core
   "Translation script / effective test"
-  (:require [clojure.tools.cli :refer [cli]])
+  (:require [clojure.tools.cli :refer [cli]]
+            [sence.maze :refer :all]
+            [sence.astar :refer :all])
   (:gen-class))
 
 
@@ -10,5 +12,5 @@
      :default false :flag true])]
     (when (:help opts)
       (println banner))
-
+    (println astar)
     ))
