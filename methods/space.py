@@ -142,6 +142,27 @@ class Get:
     def complexity(self):
         return self.state.complexity()
 
+class Sequence:
+    def __init__(self, starting_size=1, start='concat_def'):
+        self.n     = starting_size
+        self.state = python_grammar[start]
+
+    def _expand(self):
+        return expend(self.state)
+
+    def _code(self):
+        return '[{} for x in range(1, 1 + {})]'.format(code(self.state), self.n)
+
+    #def increase(self):
+    #    self.n += 1
+
+    #def decrease(self):
+    #    if self.n > 1:
+    #        self.n -= 1
+
+    def complexity(self):
+        return self.state.complexity() + self.n
+
 def recursive_collect_operators(item, given=None, indices=tuple()):
     if given is None:
         given = dict()

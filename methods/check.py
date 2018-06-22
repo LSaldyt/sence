@@ -13,6 +13,10 @@ def listify(body, do_flatten=False, a=1, b=3):
 def listify1(*args, **kwargs):
     return listify(code(args[0]), *(args[1:]), **kwargs)[1]
 
+def listify_seq(seq):
+    #print(code(seq))
+    return flatten(eval(code(seq)))
+
 def match(found, known):
     for a, b in zip(found, known):
         if a != b:
