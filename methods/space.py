@@ -114,7 +114,7 @@ class Many:
         self.internal = [self.item] * self.amount
 
     def complexity(self):
-        return self.item.complexity() * self.amount
+        return self.item.complexity() * (self.amount * self.amount)
 
 class Get:
     def __init__(self, item):
@@ -153,12 +153,12 @@ class Sequence:
     def _code(self):
         return '[{} for x in range(1, 1 + {})]'.format(code(self.state), self.n)
 
-    #def increase(self):
-    #    self.n += 1
+    def increase(self):
+        self.n += 1
 
-    #def decrease(self):
-    #    if self.n > 1:
-    #        self.n -= 1
+    def decrease(self):
+        if self.n > 1:
+            self.n -= 1
 
     def complexity(self):
         return self.state.complexity() + self.n

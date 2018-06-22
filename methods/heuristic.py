@@ -59,13 +59,11 @@ def astar(branches, start, end, distance=distance):
     distance is a heuristic function:
     dist(current, end) -> num
     '''
-    to_seq = lambda x : tuple(flatten(listify1(x)))
     to_seq = lambda seq : tuple(listify_seq(seq))
 
     print(tuple(end))
     seen      = set()
     paths     = {to_seq(start) : start}
-    #heuristic = lambda node : distance(node, end)
     heuristic = lambda node : paths[node].complexity() * distance(node, end)
 
     while tuple(end) not in paths:
@@ -77,8 +75,8 @@ def astar(branches, start, end, distance=distance):
 
         for item in branches(paths[shortest], end):
             l = item.complexity()
-            if (item not in paths or paths[item].complexity() > l):
-                #to_seq(item) not in seen:
+            if (item not in paths or paths[item].complexity() > l) and \
+                to_seq(item) not in seen:
                 paths[to_seq(item)] = item
         del paths[shortest]
 
@@ -86,21 +84,8 @@ def astar(branches, start, end, distance=distance):
     smallest = heuristic(shortest)
     print('{:<30} | {:<20} | {}'.format(str(shortest), str(smallest), paths[shortest]._code()))
 
-
     return paths[tuple(end)]
 
-#def ast_distance(a, b):
-
-#pprint(space(level=5))
-#pprint(space(python_grammar['atom'], level=5))
-#pprint(space(python_grammar['expression'], level=2))
-#pprint(space(python_grammar['expression'], level=5))
-#pprint(space(python_grammar['list_def'], level=5))
-#pprint(space(python_grammar['concat_def'], level=4))
-
-
 def heuristic():
-    #check(space(python_grammar['concat_def'], level=2))
-    #astar(branches, python_grammar['concat_def'], [2, 3, 4, 5])
     problem = [2, 3, 4, 5]
-    astar(branches, Sequence(len(problem), start='expression'), problem)
+    astar(branches, Sequence(start='list_def'), problem)
