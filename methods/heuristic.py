@@ -88,4 +88,8 @@ def astar(branches, start, end, distance=distance):
 
 def heuristic():
     problem = [2, 3, 4, 5]
-    astar(branches, Sequence(start='list_def'), problem)
+    problem = [2, 1, 2, 2, 2, 2, 2, 3, 2]
+    problem = [1, 1, 1, 2, 1, 3]
+    problem = [1, 4, 9, 16, 25, 36]
+    problem = [1, 1, 2, 1, 2, 3]
+    astar(branches, Sequence(start='concat_def'), problem)
