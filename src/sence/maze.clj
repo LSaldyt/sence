@@ -24,6 +24,10 @@
   [3 3] [[2 3] [3 2]]
   })
 
+(defn branches [node]
+  (toy-maze node))
+
+
 ;start 0 3
 ;0 
 
