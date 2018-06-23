@@ -10,10 +10,10 @@
 ;    end is the desired list
 ;    distance is a heuristic function:
 ;    dist(current, end) -> num
-   (println "Current node:")
-   (println current)
-   (println "Distance")
-   (println (distance current end))
+   ;(println "Current node:")
+   ;(println current)
+   ;(println "Distance")
+   ;(println (distance current end))
    (defn complexity [node] (count (paths node)))
    (defn heuristic [node] 
      (+ (complexity node) (distance node end)))
@@ -25,8 +25,8 @@
            (astar branches (apply min-key heuristic (keys inner-paths))
                   end distance (dissoc inner-paths current) (conj seen current))
            (let [item (first neighbors)]
-             (println "Item:")
-             (println item) 
+             ;(println "Item:")
+             ;(println item) 
              (recur (rest neighbors)
                 (if (and (or (not (contains? inner-paths item)) 
                              (> (complexity item) (+ (complexity current) 1)))

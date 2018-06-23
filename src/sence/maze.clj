@@ -2,30 +2,27 @@
   (:require [sence.astar :refer [astar]]
             [clojure.string :as str]))
 
-(def toy-maze-string
-"....
-..0.
-.00.
-....")
+;(def toy-maze-string
+;"....
+;..0.
+;.00.
+;....")
 
-(def toy-maze { 
-  [0 0] [[0 1] [1 0]]
-  [0 1] [[0 2] [0 0] [1 0]]
-  [0 2] [[0 3] [1 3] [1 2] [0 1]]
-  [0 3] [[1 3] [0 2] [1 2]] 
-  [1 0] [[0 0] [0 1] [2 0]]
-  [1 2] [[0 3] [1 3] [2 3] [0 2] [0 1]]
-  [1 3] [[0 3] [2 3] [1 2] [0 2]]
-  [2 0] [[1 0] [3 1] [3 0]]
-  [2 3] [[1 3] [1 2] [3 3] [3 2]]
-  [3 0] [[2 0] [3 1]]
-  [3 1] [[2 0] [3 2] [3 0]]
-  [3 2] [[3 3] [2 3] [3 1]]
-  [3 3] [[2 3] [3 2]]
-  })
-
-(defn branches [node]
-  (toy-maze node))
+;(def toy-maze { 
+;  [0 0] [[0 1] [1 0]]
+;  [0 1] [[0 2] [0 0] [1 0]]
+;  [0 2] [[0 3] [1 3] [1 2] [0 1]]
+;  [0 3] [[1 3] [0 2] [1 2]] 
+;  [1 0] [[0 0] [0 1] [2 0]]
+;  [1 2] [[0 3] [1 3] [2 3] [0 2] [0 1]]
+;  [1 3] [[0 3] [2 3] [1 2] [0 2]]
+;  [2 0] [[1 0] [3 1] [3 0]]
+;  [2 3] [[1 3] [1 2] [3 3] [3 2]]
+;  [3 0] [[2 0] [3 1]]
+;  [3 1] [[2 0] [3 2] [3 0]]
+;  [3 2] [[3 3] [2 3] [3 1]]
+;  [3 3] [[2 3] [3 2]]
+;  })
 
 (defmacro ford [bind expression]
   `(into {} (for ~bind ~expression)))
@@ -49,7 +46,16 @@
              :when (contains? maze point)]
          point)])))
 
-(println (parse-maze toy-maze-string))
-(def toy-maze (parse-maze toy-maze-string))
+;(println (parse-maze toy-maze-string))
+;(def toy-maze (parse-maze toy-maze-string))
+(defn read-maze [filename]
+  (parse-maze (slurp filename)))
+
+;(println (read-maze "data/bigger-maze.txt"))
+
+(def toy-maze (read-maze "data/bigger-maze.txt"))
+(println toy-maze)
+
 (defn branches [node]
   (toy-maze node))
+

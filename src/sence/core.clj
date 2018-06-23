@@ -16,6 +16,6 @@
     (println astar)
     (defn distance [[ax ay] [bx by]]
       (sqrt (+ (abs (- ax bx)) (abs (- ay by)))))
-    (println (astar branches [0 3] [3 0] distance))
+    (println (astar branches [0 0] [19 19] distance))
     ;([branches, start, end, distance] (astar branches start end distance 
     ))
