@@ -1,12 +1,12 @@
 (ns sence.maze
-  (:require [sence.astar :refer [astar]]))
-;(defn astar 
-;  ([branches, start, end, distance]
+  (:require [sence.astar :refer [astar]]
+            [clojure.string :as str]))
 
-;@...
-;..0.
-;.00.
-;...*
+(def toy-maze-string
+"....
+..0.
+.00.
+....")
 
 (def toy-maze { 
   [0 0] [[0 1] [1 0]]
@@ -27,7 +27,29 @@
 (defn branches [node]
   (toy-maze node))
 
+(defmacro ford [bind expression]
+  `(into {} (for ~bind ~expression)))
 
-;start 0 3
-;0 
+(defn free? [space]
+  (= space \.))
 
+(defn maze-dict [maze-string]
+  (let [maze-lines (str/split maze-string #"\n")]
+    (ford [[y line] (map-indexed vector maze-lines)
+           [x c]    (map-indexed vector line)
+           :when (free? c)]
+      [[x y] c])))
+
+(defn parse-maze [maze-string]
+  (let [maze (maze-dict maze-string)]
+    (ford [[[x y] v] maze]
+      [[x y] 
+       (for [point [[(+ 1 x) y] [x (+ 1 y)]
+                    [(- x 1) y] [x (- y 1)]]
+             :when (contains? maze point)]
+         point)])))
+
+(println (parse-maze toy-maze-string))
+(def toy-maze (parse-maze toy-maze-string))
+(defn branches [node]
+  (toy-maze node))
