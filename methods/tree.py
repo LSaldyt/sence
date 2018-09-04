@@ -1,4 +1,7 @@
-from functools import reduce, wraps
+from functools import reduce, wraps, partial
+
+from pprint import pprint
+from copy import deepcopy
 
 def reverse(f):
     @wraps(f)
@@ -10,6 +13,8 @@ def mult(a, b):
     return a * b
 
 def div(a, b):
+    if b == 0:
+        return 2**32
     return a // b
 
 def add(a, b):
@@ -18,28 +23,69 @@ def add(a, b):
 def sub(a, b):
     return a - b
 
-operators = {'{a}+{b}' : add,
-             '{a}-{b}' : sub,
-             '{a}*{b}' : mult,
-             '{a}/{b}' : div,
-             '{b}+{a}' : reverse(sub),
-             '{b}*{a}' : reverse(div)}
+operators = {'add' : add,
+             'sub' : sub,
+             'mul' : mult,
+             'div' : div}
+
+inverses = {'add' : 'sub',
+            'mul' : 'div',
+            'sub' : 'add',
+            'div' : 'mul'}
 
 def constant(l):
     return len(set(l)) == 1
 
-def tree(inputs, outputs, working=None):
-    working = [] if working is None else working
-    pairs = list(zip(inputs, outputs))
-    for name, op in operators.items():
-        diff = [op(x, y) for x, y in pairs]
-        print(diff)
-        print(constant(diff))
-        if constant(diff) and diff[0] != 0:
-            working.append((op, diff[0], name))
-        else:
-            pass
-            #tree(inputs, diff, working)
-    print(working)
-    for _, base, name in working:
-        print('F(x) = ' + name.format(a=base, b='x'))
+def enumerate_relations(inputs, outputs, answer, operators):
+    rules = set()
+    for i, x in enumerate(inputs):
+        for j, y in enumerate(outputs):
+            for name, op in operators.items():
+                inv_op_name = inverses[name]
+                inv_op      = operators[inv_op_name]
+                rel = op(x, y)
+                rules.add(partial(inv_op, rel))
+                rel = op(y, x)
+                rules.add(partial(inv_op, b=rel))
+
+    transforms = {rule for rule in rules if rule(inputs[-1]) != answer}
+    rules      = {rule for rule in rules if rule(inputs[-1]) == answer}
+    return rules, transforms
+
+def distance(a, b):
+    return sum(abs(x-y) for x, y in zip(a, b))
+
+def inner_tree_search(inputs, outputs, depth):
+    assert len(inputs) == len(outputs), 'Inputs and outputs must be the same length'
+    input_set = {(tuple(), tuple(inputs))}
+    next_set  = deepcopy(input_set)
+    for d in range(depth):
+        print('Recursing to functions of depth {}'.format(d + 1))
+        for previous_rules, inputs in sorted(list(input_set), key=lambda t : distance(t[1], outputs)):
+            for i in range(1, len(inputs)):
+                local_inputs  = inputs[:i + 1]
+                local_outputs = outputs[:i]
+                rules, transforms = enumerate_relations(local_inputs, local_outputs, answer=outputs[i], operators=operators)
+                for partial_rule in transforms:
+                    transformed_inputs = list(map(partial_rule, inputs))
+                    next_set.add((previous_rules + (partial_rule,), tuple(transformed_inputs)))
+                for rule in rules:
+                    applied = list(map(rule, inputs))
+                    if applied == outputs:
+                        print('Finished at depth: ', d + 1)
+                        #print(previous_rules)
+                        #print(rule)
+                        #print(inputs)
+                        #print(applied)
+                        return previous_rules + (rule,)
+        input_set.update(next_set)
+
+def tree(inputs, outputs, depth=4):
+    rules = inner_tree_search(inputs, outputs, depth)
+    print('Started with ', inputs)
+    transformed = deepcopy(inputs)
+    for rule in rules:
+        transformed = list(map(rule, transformed))
+        print(rule, ' gave: ')
+        print(transformed)
+
