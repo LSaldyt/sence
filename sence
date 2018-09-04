@@ -15,6 +15,7 @@ def main():
     inputs  = [1, 2, 3]
     outputs = [3, 5, 7]
     outputs = [x * 3 for x in outputs]
+    outputs = [4, 9, 16]
     tree(inputs, outputs, depth=10)
 
 if __name__ == '__main__':

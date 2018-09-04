@@ -73,10 +73,6 @@ def inner_tree_search(inputs, outputs, depth):
                     applied = list(map(rule, inputs))
                     if applied == outputs:
                         print('Finished at depth: ', d + 1)
-                        #print(previous_rules)
-                        #print(rule)
-                        #print(inputs)
-                        #print(applied)
                         return previous_rules + (rule,)
         input_set.update(next_set)
 
@@ -88,4 +84,3 @@ def tree(inputs, outputs, depth=4):
         transformed = list(map(rule, transformed))
         print(rule, ' gave: ')
         print(transformed)
-
