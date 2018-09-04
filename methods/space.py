@@ -4,7 +4,7 @@ import types
 from collections import defaultdict
 from copy import deepcopy, copy
 
-_N = 20
+_N = 3
 
 python_grammar = dict()
 
