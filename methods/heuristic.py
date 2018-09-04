@@ -86,9 +86,5 @@ def astar(branches, start, end, distance=distance):
 
     return paths[tuple(end)]
 
-def heuristic():
-    problem = [2, 3, 4, 5]
-    problem = [3, 6, 10, 15]
-    problem = [2, 4, 6, 8]
-    problem = [3, 6, 9, 12]
+def heuristic(problem):
     astar(branches, Sequence(start='list_def'), problem)
