@@ -1,11 +1,17 @@
 from copy import deepcopy
+from collections import namedtuple
+
+Partial = namedtuple('Partial', ['operator', 'arguments'])
+Partial.__str__ = lambda self : self.operator.expand('x', *self.arguments)
+Partial.__repr__ = lambda s : str(s)
 
 class Operator:
-    def __init__(self, f, nargs, template, name):
+    def __init__(self, f, nargs, template, name, reverse):
         assert template.count('{}') == nargs, 'Template contains wrong number of format locations ("{}"s)'
         self.f           = f
         self.name        = name
         self.nargs       = nargs
+        self.reverse     = reverse
         self.template    = template
         self.arg_mapping = tuple(range(nargs))
 
@@ -28,3 +34,6 @@ class Operator:
 
     def expand(self, *args):
         return self.template.format(*self._mapped(args))
+
+    def partial(self, *args):
+        return Partial(self, [self.f(*args)])

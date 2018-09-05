@@ -2,14 +2,13 @@
 from methods.legacy.brute_force import brute_force
 from methods.legacy.heuristic   import heuristic
 from methods.tree import tree
-from methods.arithmetic import test
+from methods.arithmetic import operators
 
 def main():
-    test()
-    1/0
+    print(operators)
     inputs  = [1, 2, 3]
-    outputs = [3, 5, 7]
-    tree(inputs, outputs, depth=10)
+    outputs = [2, 4, 6]
+    tree(inputs, outputs)
 
 if __name__ == '__main__':
     main()
