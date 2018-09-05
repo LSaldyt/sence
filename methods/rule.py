@@ -12,6 +12,9 @@ class Rule:
     def __repr__(self):
         return '{}'.format(self)
 
+    def __hash__(self):
+        return hash(tuple(self.partials))
+
     def apply(self, *args):
         working = args
         for partial in self.partials:

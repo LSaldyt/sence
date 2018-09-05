@@ -1,9 +1,6 @@
 from copy import deepcopy
 from collections import namedtuple
-
-Partial = namedtuple('Partial', ['operator', 'arguments'])
-Partial.__str__ = lambda self : self.operator.expand('x', *self.arguments)
-Partial.__repr__ = lambda s : str(s)
+from .partial import Partial
 
 class Operator:
     def __init__(self, f, nargs, template, name, reverse):
@@ -17,6 +14,9 @@ class Operator:
 
     def __str__(self):
         return self.name
+
+    def __hash__(self):
+        return hash((self.name, self.nargs, self.reverse, self.template, self.arg_mapping))
 
     def _mapped(self, args):
         return (args[i] for i in self.arg_mapping)
