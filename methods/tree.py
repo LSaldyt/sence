@@ -5,6 +5,7 @@ from copy   import deepcopy
 
 from .operator import Operator
 from .partial  import Partial
+from .index    import Index, RevIndex
 from .rule     import Rule
 
 from .arithmetic import operators
@@ -17,7 +18,11 @@ def enumerate_relations(inputs, outputs, answer, operators):
     for i, x in enumerate(inputs):
         for j, y in enumerate(outputs):
             for name, op in operators.items():
-                rules.add(Rule([op.partial((len(inputs) - i, x), (len(outputs) - j, y))]))
+                if i == 0:
+                    rules.add(Rule([Partial(op, [RevIndex(outputs, j, 'outputs'), Index(0, 'arguments')], [op.f(inputs[i], outputs[j])])]))
+                if j == 0:
+                    rules.add(Rule([Partial(op, [RevIndex(inputs, i, 'inputs'), Index(0, 'arguments')], [op.f(inputs[i], outputs[j])])]))
+                rules.add(Rule([Partial(op, [RevIndex(inputs, i, 'inputs'), RevIndex(outputs, j, 'outputs')], [])]))
     return {rule for rule in rules if rule.guess(inputs, outputs) == answer}
 
 def tree(inputs, outputs, depth=3):
@@ -33,38 +38,3 @@ def tree(inputs, outputs, depth=3):
         print(local_inputs)
         print(local_outputs)
         print(local_answer)
-
-'''
-def tree(inputs, outputs, depth=3):
-    rules = {Rule([])}
-    solutions = set()
-    finished = False
-    for d in range(depth):
-        print('Recurring to depth {} ({} considerables)'.format(d, len(rules)))
-        new_rules = set()
-        working   = set()
-        for previous_rule in rules:
-            for i in range(1, len(inputs) - 1):
-                local_inputs  = [previous_rule.apply(x) for x in inputs[:i + 1]]
-                local_outputs = outputs[:i]
-                rules = enumerate_relations(local_inputs, local_outputs,
-                                            answer=outputs[i], operators=operators)
-                rules = {previous_rule.join(rule) for rule in rules}
-
-                working.update(  {rule for rule in rules
-                                  if rule.guess(inputs, outputs) == outputs[i+1]})
-                new_rules.update({rule for rule in rules
-                                  if rule.guess(inputs, outputs) != outputs[i+1]})
-        for hypothesis in working:
-            if hypothesis.guess(inputs, outputs[:-1]) == outputs[-1]:
-                solutions.add(hypothesis)
-                finished = True
-        rules.update(new_rules)
-        if finished:
-            break
-
-    print('Rules:')
-    pprint(rules)
-    print('Solutions:')
-    pprint(solutions)
-'''

@@ -16,7 +16,15 @@ class Partial:
     def __hash__(self):
         return hash((self.operator, tuple(self.arguments)))
 
+    def retrieve(self, index, inputs, outputs):
+        if index.source == 'inputs':
+            return inputs[-index.i]
+        elif index.source == 'outputs':
+            return outputs[-index.i]
+        elif index.source == 'arguments':
+            return self.arguments[-index.i]
+        else:
+            raise ValueError('Index.source must be inputs, outputs or arguments')
+
     def apply(self, inputs, outputs):
-        x = inputs[-self.indices[0]]
-        y = outputs[-self.indices[1]]
-        return self.operator.apply(x, y)
+        return self.operator.apply(*map(lambda i : self.retrieve(i, inputs, outputs), self.indices))
