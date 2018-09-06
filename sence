@@ -10,6 +10,7 @@ def main():
     outputs = [2, 4, 6]
     outputs = [3, 5, 7]
     outputs = [1, 2, 6]
+    outputs = [1, 3, 6]
     
     tree(inputs, outputs)
 
