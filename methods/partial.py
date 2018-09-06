@@ -1,5 +1,14 @@
-Partial = namedtuple('Partial', ['operator', 'arguments'])
-Partial.__str__  = lambda self : self.operator.expand('x', *self.arguments)
-Partial.__repr__ = lambda self : str(self)
-Partial.__hash__ = lambda self : hash((self.operator, tuple(self.arguments)))
 
+class Partial:
+    def __init__(self, operator, arguments):
+        self.operator  = operator
+        self.arguments = arguments
+
+    def __str__(self):
+        return self.operator.expand('x', *self.arguments)
+
+    def __repr__(self):
+        return str(self)
+
+    def __hash__(self):
+        return hash((self.operator, tuple(self.arguments)))

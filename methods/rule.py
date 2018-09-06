@@ -15,14 +15,20 @@ class Rule:
     def __hash__(self):
         return hash(tuple(self.partials))
 
-    def apply(self, *args):
-        working = args
+    def apply(self, x):
+        working = x
         for partial in self.partials:
-            working = partial.operator.apply(*partial.arguments, *working)
+            working = partial.operator.apply(*partial.arguments, working)
         return working
 
     def add(self, partial):
         self.partials.append(partial)
+
+    def join(self, other):
+        joined = deepcopy(self)
+        for partial in other.partials:
+            joined.add(partial)
+        return joined
 
     def expand(self):
         return str(self)
