@@ -8,6 +8,8 @@ def main():
     print(operators)
     inputs  = [1, 2, 3]
     outputs = [2, 4, 6]
+    #outputs = [3, 5, 7]
+    
     tree(inputs, outputs)
 
 if __name__ == '__main__':

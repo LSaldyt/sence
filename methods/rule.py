@@ -1,9 +1,12 @@
 from copy import deepcopy
+from pprint import pprint
 
 from .operator import Partial
 
+
 class Rule:
     def __init__(self, partials):
+        #pprint(partials)
         self.partials = deepcopy(partials)
 
     def __str__(self):
@@ -14,6 +17,9 @@ class Rule:
 
     def __hash__(self):
         return hash(tuple(self.partials))
+
+    def guess(self, inputs, outputs):
+        return self.partials[0].apply(inputs, outputs)
 
     def apply(self, x):
         working = x

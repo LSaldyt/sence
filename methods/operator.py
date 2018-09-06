@@ -36,4 +36,4 @@ class Operator:
         return self.template.format(*self._mapped(args))
 
     def partial(self, *args):
-        return Partial(self, [self.f(*args)])
+        return Partial(self, [t[0] for t in args], [self.f(*(t[1] for t in args))])
