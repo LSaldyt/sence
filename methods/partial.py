@@ -1,4 +1,5 @@
 
+
 class Partial:
     def __init__(self, operator, indices, arguments):
         self.operator  = operator
@@ -6,8 +7,11 @@ class Partial:
         self.indices   = indices
 
     def __str__(self):
-        format_index = lambda i : '_n-{}'.format(self.indices[i])
-        return self.operator.expand('[x' + format_index(0), 'y' + format_index(1) + ']')
+        format_source_str = lambda s : 'x' if s == 'inputs' else 'y'
+        format_index = lambda i : (format_source_str(self.indices[i].source) + '_n-{}'.format(self.indices[i])
+                                   if self.indices[i].source != 'arguments' else
+                                   str(self.arguments[self.indices[i].i]))
+        return self.operator.expand(format_index(0), format_index(1))
 
     def __repr__(self):
         return str(self)

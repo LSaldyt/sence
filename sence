@@ -8,6 +8,8 @@ def main():
     print(operators)
     N = 10
     function = lambda x : 2 * x + 1
+    def function(x): 
+        return 1 if x == 1 else x * function(x-1)
     inputs  = list(range(1, N+1))
     outputs = list(map(function, inputs))
 
