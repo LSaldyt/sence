@@ -6,11 +6,10 @@ from .operator import Partial
 
 class Rule:
     def __init__(self, partials):
-        #pprint(partials)
         self.partials = deepcopy(partials)
 
     def __str__(self):
-        return ', '.join(map(str, self.partials))
+        return'f(x) = ' + ' '.join(map(str, self.partials))
 
     def __repr__(self):
         return '{}'.format(self)
@@ -19,7 +18,11 @@ class Rule:
         return hash(tuple(self.partials))
 
     def guess(self, inputs, outputs):
-        return self.partials[0].apply(inputs, outputs)
+        working = self.partials[0].apply(inputs, outputs)
+        for partial in self.partials[1:]:
+            print(partial)
+            1/0
+        return working
 
     def apply(self, x):
         working = x

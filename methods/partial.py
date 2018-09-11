@@ -6,9 +6,8 @@ class Partial:
         self.indices   = indices
 
     def __str__(self):
-        format_index = lambda i : '(n-{})'.format(self.indices[i])
-        return str(self.operator) + '[x' + format_index(0) + ', y' + format_index(1) + ']'
-        #return self.operator.expand('x', *self.arguments)
+        format_index = lambda i : '_n-{}'.format(self.indices[i])
+        return self.operator.expand('[x' + format_index(0), 'y' + format_index(1) + ']')
 
     def __repr__(self):
         return str(self)
