@@ -9,14 +9,14 @@ from math import floor
 
 import matplotlib.pyplot as plt
 
-def create_model(layer_specification, data, labels, validation_percentage=0.1):
+def create_model(layer_specification, data, labels, validation_percentage=0.1, epochs=10):
     # A standard net, based on Tensorflow beginner tutorial
     model = keras.Sequential()
     for width, activation in layer_specification:
         model.add(keras.layers.Dense(width, activation=activation))
 
     model.compile(optimizer=tf.train.AdamOptimizer(0.001),
-                  loss='categorical_crossentropy',
+                  loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
 
     split  = len(data) - floor(len(data) * validation_percentage)
@@ -27,7 +27,7 @@ def create_model(layer_specification, data, labels, validation_percentage=0.1):
     val_data   = data[split:]
     val_labels = labels[split:]
 
-    model.fit(train_data, train_labels, epochs=10, batch_size=32,
+    model.fit(train_data, train_labels, epochs=epochs, batch_size=32,
               validation_data=(val_data, val_labels))
 
     return model
@@ -40,18 +40,21 @@ def plot_value_array(i, predictions_array):
     plt.grid(False)
     thisplot = plt.bar(range(len(predictions_array)), predictions_array, color="#777777")
     plt.ylim([0, 1])
+    print('Best prediction:')
     print(np.argmax(predictions_array))
 
 def main(args):
     f = lambda x : x * 2
-    N = 100
+    N = 10
 
-    layer_specification = [(N, 'relu'), (N, 'relu'), (N, 'relu'), (N, 'softmax')]
+    layer_specification = [(1, 'relu'), (N, 'relu'), (f(N), 'softmax')]
+    # Performed better with one hidden layer instead of two!
 
-    data   = np.array([list(range(N))])
-    labels = np.array([list(map(f, range(N)))])
-    model = create_model(layer_specification, data, labels)
-    predictions = model.predict(np.array([list(map(f, range(N, 2*N)))]))
+    data   = np.array([[n] for n in range(N)])
+    labels = np.array([[n] for n in map(f, range(N))])
+    model = create_model(layer_specification, data, labels, validation_percentage=0.01, epochs=10)
+    print('F({})?'.format(N))
+    predictions = model.predict(np.array([[N + 1]]))
     plot_value_array(0, predictions)
     plt.show()
     return 0

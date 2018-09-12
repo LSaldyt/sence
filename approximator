@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+
+#Load Modules
+import tensorflow as tf
+import numpy as np
+import math, random
+import matplotlib.pyplot as plt
+
+def f(x):
+    return x * 2
+
+x = np.arange(0, 2*np.pi, 2*np.pi/1000).reshape((1000,1))
+y = f(x)
+#y = np.sin(x)
+plt.plot(x,y)
+plt.show()
+
+# Define the number of nodes
+n_nodes_hl1 = 100
+n_nodes_hl2 = 100
+
+# Define the number of outputs and the learn rate
+n_classes = 1
+learn_rate = 0.1
+
+# Define input / output placeholders
+x_ph = tf.placeholder('float', [None, 1],name='input')
+y_ph = tf.placeholder('float')
+
+# Routine to compute the neural network (2 hidden layers)
+def neural_network_model(data):
+    hidden_1_layer = {'weights': tf.Variable(name='w_h1',initial_value=tf.random_normal([1, n_nodes_hl1], stddev=0.01)),
+                      'biases': tf.Variable(name='b_h1',initial_value=tf.random_normal([n_nodes_hl1], stddev=0.01))}
+
+    hidden_2_layer = {'weights': tf.Variable(name='w_h2',initial_value=tf.random_normal([n_nodes_hl1, n_nodes_hl2], stddev=0.01)),
+                      'biases': tf.Variable(name='b_h2',initial_value=tf.random_normal([n_nodes_hl2], stddev=0.01))}
+
+    output_layer = {'weights': tf.Variable(name='w_o',initial_value=tf.random_normal([n_nodes_hl2, n_classes], stddev=0.01)),
+                      'biases': tf.Variable(name='b_o',initial_value=tf.random_normal([n_classes], stddev=0.01))}
+
+
+    # (input_data * weights) + biases
+    l1 = tf.add(tf.matmul(data, hidden_1_layer['weights']), hidden_1_layer['biases'])
+    l1 = tf.nn.relu(l1)
+
+
+    l2 = tf.add(tf.matmul(l1, hidden_2_layer['weights']), hidden_2_layer['biases'])
+    l2 = tf.nn.relu(l2)
+
+
+    output = tf.add(tf.matmul(l2, output_layer['weights']), output_layer['biases'], name='output')
+
+    return output
+
+batch_size = 32
+learn_rate = 0.01
+# Feed batch data
+def get_batch(inputX, inputY, batch_size):
+    duration = len(inputX)
+    for i in range(0,duration//batch_size):
+        idx = i*batch_size + np.random.randint(0,10,(1))[0]
+
+        yield inputX[idx:idx+batch_size], inputY[idx:idx+batch_size]
+
+
+# Routine to train the neural network
+def train_neural_network_batch(x_ph, predict=False):
+    prediction = neural_network_model(x_ph)
+    cost = tf.reduce_mean(tf.square(prediction - y_ph))
+    optimizer = tf.train.GradientDescentOptimizer(learn_rate).minimize(cost)
+
+    # cycles feed forward + backprop
+    hm_epochs = 100
+
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        # Train in each epoch with the whole data
+        for epoch in range(hm_epochs):
+
+            epoch_loss = 0
+            for step in range(1000//batch_size):
+                for inputX, inputY in get_batch(x, y, batch_size):
+                    _, l = sess.run([optimizer,cost], feed_dict={x_ph:inputX, y_ph:inputY})
+                    epoch_loss += l
+            if epoch %10 == 0:
+                print('Epoch', epoch, 'completed out of', hm_epochs, 'loss:', epoch_loss)
+
+
+        #predict a new input by adding a random number, to check whether the network has actually learned
+        x_valid = x + np.random.normal(scale=0.1,size=(1))
+        return sess.run(tf.squeeze(prediction),{x_ph:x_valid}), x_valid
+
+# Train network
+tf.set_random_seed(42)
+pred, time = train_neural_network_batch(x_ph)
+
+plt.plot(time, pred)
+plt.show()
