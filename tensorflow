@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+import sys
+
+import tensorflow as tf
+from tensorflow import keras
+import numpy as np
+
+from math import floor
+
+import matplotlib.pyplot as plt
+
+def create_model(layer_specification, data, labels, validation_percentage=0.1):
+    # A standard net, based on Tensorflow beginner tutorial
+    model = keras.Sequential()
+    for width, activation in layer_specification:
+        model.add(keras.layers.Dense(width, activation=activation))
+
+    model.compile(optimizer=tf.train.AdamOptimizer(0.001),
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
+
+    split  = len(data) - floor(len(data) * validation_percentage)
+
+    train_data   = data[:split]
+    train_labels = labels[:split]
+
+    val_data   = data[split:]
+    val_labels = labels[split:]
+
+    model.fit(train_data, train_labels, epochs=10, batch_size=32,
+              validation_data=(val_data, val_labels))
+
+    return model
+
+def test_model():
+    pass
+
+def plot_value_array(i, predictions_array):
+    predictions_array = predictions_array[i]
+    plt.grid(False)
+    thisplot = plt.bar(range(len(predictions_array)), predictions_array, color="#777777")
+    plt.ylim([0, 1])
+    print(np.argmax(predictions_array))
+
+def main(args):
+    f = lambda x : x * 2
+    N = 100
+
+    layer_specification = [(N, 'relu'), (N, 'relu'), (N, 'relu'), (N, 'softmax')]
+
+    data   = np.array([list(range(N))])
+    labels = np.array([list(map(f, range(N)))])
+    model = create_model(layer_specification, data, labels)
+    predictions = model.predict(np.array([list(map(f, range(N, 2*N)))]))
+    plot_value_array(0, predictions)
+    plt.show()
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
