@@ -7,17 +7,19 @@ import math, random
 import matplotlib.pyplot as plt
 
 def f(x):
+    return x * x
+    return x + 3
     return x * 2
 
 x = np.arange(0, 2*np.pi, 2*np.pi/1000).reshape((1000,1))
 y = f(x)
 #y = np.sin(x)
-plt.plot(x,y)
-plt.show()
+#plt.plot(x,y)
+#plt.show()
 
 # Define the number of nodes
-n_nodes_hl1 = 100
-n_nodes_hl2 = 100
+n_nodes_hl1 = 200
+n_nodes_hl2 = 200
 
 # Define the number of outputs and the learn rate
 n_classes = 1
@@ -95,4 +97,5 @@ tf.set_random_seed(42)
 pred, time = train_neural_network_batch(x_ph)
 
 plt.plot(time, pred)
+plt.plot(time, y, color='orange')
 plt.show()
