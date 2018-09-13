@@ -3,12 +3,12 @@ from methods.legacy.brute_force import brute_force
 from methods.legacy.heuristic   import heuristic
 from methods.tree import tree
 from methods.arithmetic import operators
-from methods.generate import generate
+#from methods.generate import generate
 
 def main():
-    for item in generate():
-        print(item)
-    1/0
+    #for item in generate():
+    #    print(item)
+    #1/0
     #print(operators)
     N = 10
     a = 3
