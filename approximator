@@ -18,8 +18,8 @@ y = f(x)
 #plt.show()
 
 # Define the number of nodes
-n_nodes_hl1 = 200
-n_nodes_hl2 = 200
+n_nodes_hl1 = 100
+n_nodes_hl2 = 100
 
 # Define the number of outputs and the learn rate
 n_classes = 1
@@ -69,7 +69,8 @@ def get_batch(inputX, inputY, batch_size):
 def train_neural_network_batch(x_ph, predict=False):
     prediction = neural_network_model(x_ph)
     cost = tf.reduce_mean(tf.square(prediction - y_ph))
-    optimizer = tf.train.GradientDescentOptimizer(learn_rate).minimize(cost)
+    #optimizer = tf.train.GradientDescentOptimizer(learn_rate).minimize(cost)
+    optimizer = tf.train.AdamOptimizer(learn_rate).minimize(cost)
 
     # cycles feed forward + backprop
     hm_epochs = 100
