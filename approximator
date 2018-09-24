@@ -7,12 +7,25 @@ import math, random
 import matplotlib.pyplot as plt
 
 def f(x):
+    return x **3 + x ** 2 + x + 3
+    # Also doesn't work, likely because the function is so large
+    return x ** x
+    # The below cannot be approximated:
+    if x % 2 == 0:
+        return 0
+    else:
+        return 1
+    return sum(range(x))
+    if x == 1:
+        return 1
+    else:
+        return x + f(x-1)
     return x * x
     return x + 3
     return x * 2
 
-x = np.arange(0, 2*np.pi, 2*np.pi/1000).reshape((1000,1))
-y = f(x)
+x = np.arange(0, 1000).reshape((1000,1))
+y = np.fromiter((f(n[0]) for n in x), int)
 #y = np.sin(x)
 #plt.plot(x,y)
 #plt.show()
