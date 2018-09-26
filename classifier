@@ -1,0 +1,69 @@
+#!/usr/bin/env python3.5
+# TensorFlow and tf.keras
+import tensorflow as tf
+from tensorflow import keras
+
+# Helper libraries
+import numpy as np
+import matplotlib.pyplot as plt
+
+import random
+
+def gen_evens(N):
+    return [(2 * n, True) for n in range(N)]
+
+def gen_odds(N):
+    return [(2 * n + 1, False) for n in range(N)]
+
+def unpair(paired):
+    A = []
+    B = []
+    for a, b in paired:
+        A.append(a)
+        B.append(b)
+    return A, B
+
+N = 10 ** 4
+train_p = 0.8
+
+print('Learning even/odd split with {} datapoints and {} percent training data'.format(N, train_p))
+
+data = gen_evens(N) + gen_odds(N)
+random.shuffle(data)
+
+maxbits = 32
+to_binary_list  = lambda n : list(map(int, bin(n)[2:]))
+pad_binary_list = lambda l : [0] * (maxbits - len(l)) + l
+binary = lambda n : pad_binary_list(to_binary_list(n))
+
+data = [(binary(n), label) for n, label in data]
+print(data)
+#1/0
+
+split = int(N*train_p)
+train_ns, train_labels = unpair(data[:split])
+test_ns, test_labels   = unpair(data[split:])
+
+#class_names = ['Even', 'Odd']
+train_ns = np.array(train_ns)
+test_ns  = np.array(test_ns)
+
+model = keras.Sequential([
+    keras.layers.InputLayer(input_shape=(32,)),
+    keras.layers.Dense(128, activation=tf.nn.relu),
+    keras.layers.Dense(2, activation=tf.nn.softmax)
+])
+
+model.compile(optimizer=tf.train.AdamOptimizer(),
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+model.fit(train_ns, train_labels, epochs=5)
+
+test_loss, test_acc = model.evaluate(test_ns, test_labels)
+
+print('Test accuracy:', test_acc)
+
+predictions = model.predict(test_ns)
+
+print(predictions)
