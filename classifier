@@ -32,6 +32,9 @@ def unpair(paired):
 N = 10 ** 5
 train_p = 0.8
 
+representation = 'binary'
+representation = 'decimal'
+
 print('Learning split with {} datapoints and p={} training data'.format(N, train_p))
 
 #data = gen_evens(N) + gen_odds(N)
@@ -44,9 +47,8 @@ to_binary_list  = lambda n : list(map(int, bin(n)[2:]))
 pad_binary_list = lambda l : [0] * (maxbits - len(l)) + l
 binary = lambda n : pad_binary_list(to_binary_list(n))
 
-data = [(binary(n), label) for n, label in data]
-#print(data)
-#1/0
+if representation == 'binary':
+    data = [(binary(n), label) for n, label in data]
 
 split = int(N*train_p)
 train_ns, train_labels = unpair(data[:split])
@@ -57,7 +59,7 @@ train_ns = np.array(train_ns)
 test_ns  = np.array(test_ns)
 
 model = keras.Sequential([
-    keras.layers.InputLayer(input_shape=(32,)),
+    keras.layers.InputLayer(input_shape=((32,) if representation == 'binary' else (1,))),
     keras.layers.Dense(128, activation=tf.nn.relu),
     keras.layers.Dense(2, activation=tf.nn.softmax)
 ])
