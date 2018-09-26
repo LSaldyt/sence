@@ -15,6 +15,12 @@ def gen_evens(N):
 def gen_odds(N):
     return [(2 * n + 1, False) for n in range(N)]
 
+from sieve import gen_primes, gen_composites, take
+
+#def gen_primes(N):
+#def gen_composites(N):
+
+
 def unpair(paired):
     A = []
     B = []
@@ -23,12 +29,14 @@ def unpair(paired):
         B.append(b)
     return A, B
 
-N = 10 ** 4
+N = 10 ** 5
 train_p = 0.8
 
-print('Learning even/odd split with {} datapoints and {} percent training data'.format(N, train_p))
+print('Learning split with {} datapoints and p={} training data'.format(N, train_p))
 
-data = gen_evens(N) + gen_odds(N)
+#data = gen_evens(N) + gen_odds(N)
+data = [(n, True) for n in take(gen_primes(), N)] + [(n, False) for n in take(gen_composites(), N)]
+
 random.shuffle(data)
 
 maxbits = 32
@@ -37,7 +45,7 @@ pad_binary_list = lambda l : [0] * (maxbits - len(l)) + l
 binary = lambda n : pad_binary_list(to_binary_list(n))
 
 data = [(binary(n), label) for n, label in data]
-print(data)
+#print(data)
 #1/0
 
 split = int(N*train_p)
@@ -64,6 +72,5 @@ test_loss, test_acc = model.evaluate(test_ns, test_labels)
 
 print('Test accuracy:', test_acc)
 
-predictions = model.predict(test_ns)
-
-print(predictions)
+#predictions = model.predict(test_ns)
+#print(predictions)
