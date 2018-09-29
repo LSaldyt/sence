@@ -1,0 +1,20 @@
+grid {sence}: ./classifier
+Learning split with 100000 datapoints and p=0.8 training data
+Epoch 1/5
+2018-09-25 20:41:47.643447: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+80000/80000 [==============================] - 3s 33us/step - loss: 0.0077 - acc: 0.9984
+Epoch 2/5
+80000/80000 [==============================] - 3s 32us/step - loss: 3.9845e-07 - acc: 1.0000
+Epoch 3/5
+80000/80000 [==============================] - 3s 32us/step - loss: 1.5395e-07 - acc: 1.0000
+Epoch 4/5
+80000/80000 [==============================] - 3s 32us/step - loss: 1.2616e-07 - acc: 1.0000
+Epoch 5/5
+80000/80000 [==============================] - 3s 32us/step - loss: 1.2095e-07 - acc: 1.0000
+120000/120000 [==============================] - 2s 17us/step
+Test accuracy: 1.0
+200000/200000 [==============================] - 3s 16us/step
+Accuracy from N=100000 to the next power of ten:
+1.0
+grid {sence}:
+

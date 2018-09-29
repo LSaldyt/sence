@@ -1,0 +1,40 @@
+grid {sence}: ./classifier
+Learning split with 100000 datapoints and p=0.8 training data
+Epoch 1/5
+2018-09-25 19:44:55.405294: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+80000/80000 [==============================] - 3s 37us/step - loss: 0.1599 - acc: 0.9376
+Epoch 2/5
+80000/80000 [==============================] - 3s 34us/step - loss: 0.1385 - acc: 0.9466
+Epoch 3/5
+80000/80000 [==============================] - 3s 35us/step - loss: 0.1348 - acc: 0.9477
+Epoch 4/5
+80000/80000 [==============================] - 3s 34us/step - loss: 0.1343 - acc: 0.9476
+Epoch 5/5
+80000/80000 [==============================] - 3s 34us/step - loss: 0.1339 - acc: 0.9478
+120000/120000 [==============================] - 2s 15us/step
+Test accuracy: 0.947275
+grid {sence}: vim classifier
+grid {sence}: ./classifier
+Traceback (most recent call last):
+  File "./classifier", line 85, in <module>
+    sys.exit(main(sys.argv[1:]))
+  File "./classifier", line 71, in main
+    data = gen_evens(N) + gen_odds(N)
+UnboundLocalError: local variable 'N' referenced before assignment
+grid {sence}: vim classifier
+grid {sence}: ./classifier
+Learning split with 100000 datapoints and p=0.8 training data
+Epoch 1/5
+2018-09-25 19:47:52.160040: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+80000/80000 [==============================] - 3s 36us/step - loss: 0.0016 - acc: 0.9997
+Epoch 2/5
+80000/80000 [==============================] - 3s 34us/step - loss: 1.8124e-07 - acc: 1.0000
+Epoch 3/5
+80000/80000 [==============================] - 3s 34us/step - loss: 1.3760e-07 - acc: 1.0000
+Epoch 4/5
+80000/80000 [==============================] - 3s 35us/step - loss: 1.2535e-07 - acc: 1.0000
+Epoch 5/5
+80000/80000 [==============================] - 3s 36us/step - loss: 1.2135e-07 - acc: 1.0000
+120000/120000 [==============================] - 2s 15us/step
+Test accuracy: 0.16666666666666666
+grid {sence}:

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3.5
+import sys
+
 # TensorFlow and tf.keras
 import tensorflow as tf
 from tensorflow import keras
@@ -9,18 +11,6 @@ import matplotlib.pyplot as plt
 
 import random
 
-def gen_evens(N):
-    return [(2 * n, True) for n in range(N)]
-
-def gen_odds(N):
-    return [(2 * n + 1, False) for n in range(N)]
-
-from sieve import gen_primes, gen_composites, take
-
-#def gen_primes(N):
-#def gen_composites(N):
-
-
 def unpair(paired):
     A = []
     B = []
@@ -29,50 +19,78 @@ def unpair(paired):
         B.append(b)
     return A, B
 
-N = 10 ** 5
-train_p = 0.8
-
-representation = 'binary'
-representation = 'decimal'
-
-print('Learning split with {} datapoints and p={} training data'.format(N, train_p))
-
-#data = gen_evens(N) + gen_odds(N)
-data = [(n, True) for n in take(gen_primes(), N)] + [(n, False) for n in take(gen_composites(), N)]
-
-random.shuffle(data)
-
 maxbits = 32
+
 to_binary_list  = lambda n : list(map(int, bin(n)[2:]))
 pad_binary_list = lambda l : [0] * (maxbits - len(l)) + l
 binary = lambda n : pad_binary_list(to_binary_list(n))
 
-if representation == 'binary':
-    data = [(binary(n), label) for n, label in data]
+def run_nn_test(data, N, train_p, representation, randomize=True):
+    if randomize:
+        random.shuffle(data)
 
-split = int(N*train_p)
-train_ns, train_labels = unpair(data[:split])
-test_ns, test_labels   = unpair(data[split:])
+    if representation == 'binary':
+        data = [(binary(n), label) for n, label in data]
+
+    split = int(N*train_p)
+    train_ns, train_labels = unpair(data[:split])
+    test_ns, test_labels   = unpair(data[split:])
 
 #class_names = ['Even', 'Odd']
-train_ns = np.array(train_ns)
-test_ns  = np.array(test_ns)
+    train_ns = np.array(train_ns)
+    test_ns  = np.array(test_ns)
 
-model = keras.Sequential([
-    keras.layers.InputLayer(input_shape=((32,) if representation == 'binary' else (1,))),
-    keras.layers.Dense(128, activation=tf.nn.relu),
-    keras.layers.Dense(2, activation=tf.nn.softmax)
-])
+    model = keras.Sequential([
+        keras.layers.InputLayer(input_shape=((32,) if representation == 'binary' else (1,))),
+        keras.layers.Dense(128, activation=tf.nn.relu),
+        keras.layers.Dense(128, activation=tf.nn.relu),
+        keras.layers.Dense(2, activation=tf.nn.softmax)
+    ])
 
-model.compile(optimizer=tf.train.AdamOptimizer(),
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
+    model.compile(optimizer=tf.train.AdamOptimizer(),
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
 
-model.fit(train_ns, train_labels, epochs=5)
+    model.fit(train_ns, train_labels, epochs=5)
 
-test_loss, test_acc = model.evaluate(test_ns, test_labels)
+    test_loss, test_acc = model.evaluate(test_ns, test_labels)
 
-print('Test accuracy:', test_acc)
+    print('Test accuracy:', test_acc)
 
-#predictions = model.predict(test_ns)
-#print(predictions)
+    predictions = model.predict(test_ns)
+    return model
+
+def main(args):
+
+    def gen_evens(N, start=1):
+        return [(2 * n, True) for n in range(start, N+1)]
+
+    def gen_odds(N, start=1):
+        return [(2 * n + 1, False) for n in range(start, N+1)]
+
+    from sieve import gen_primes, gen_composites, take
+
+    representation = 'binary'
+    #representation = 'decimal'
+
+    N = 10 ** 5
+    train_p = 0.8
+    data = gen_evens(N) + gen_odds(N)
+    #data = [(n, True) for n in take(gen_primes(), N)] + [(n, False) for n in take(gen_composites(), N)]
+    predict_data = gen_evens(N*10, start=N) + gen_odds(N*10, start=N)
+    #predict_data = [(n, True) for n in take(gen_primes(data[N][0]), N*10)] + [(n, True) for n in take(gen_composites(data[N + 1][0]), N*10)]
+    if representation == 'binary':
+        predict_data = [(binary(n), label) for n, label in data]
+    predict_ns, predict_labels = unpair(predict_data)
+    predict_ns = np.array(predict_ns)
+    predict_labels = np.array(predict_labels)
+
+    print('Learning split with {} datapoints and p={} training data'.format(N, train_p))
+
+    model = run_nn_test(data, N, train_p, representation, randomize=True)
+    extra_loss, extra_acc = model.evaluate(predict_ns, predict_labels)
+    print('Accuracy from N={} to the next power of ten:'.format(N))
+    print(extra_acc)
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))

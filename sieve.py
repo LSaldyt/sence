@@ -3,7 +3,7 @@
 # http://code.activestate.com/recipes/117119/
 # Edited by Lucas Saldyt, 25 Sep 2018
 
-def gen_numbers(primes=True):
+def gen_numbers(start=2, primes=True):
     """ Generate an infinite sequence of prime numbers.
     """
     # Maps composites to primes witnessing their compositeness.
@@ -13,7 +13,7 @@ def gen_numbers(primes=True):
     D = {}
 
     # The running integer that's checked for primeness
-    q = 2
+    q = start
 
     while True:
         #print(q)
@@ -39,12 +39,12 @@ def gen_numbers(primes=True):
             del D[q]
         q += 1
 
-def gen_primes():
-    for item in gen_numbers(primes=True):
+def gen_primes(start=2):
+    for item in gen_numbers(start, primes=True):
         yield item
 
-def gen_composites():
-    for item in gen_numbers(primes=False):
+def gen_composites(start=2):
+    for item in gen_numbers(start, primes=False):
         yield item
 
 
