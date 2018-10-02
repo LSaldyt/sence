@@ -19,7 +19,7 @@ def unpair(paired):
         B.append(b)
     return A, B
 
-maxbits = 32
+maxbits = 256
 
 to_binary_list  = lambda n : list(map(int, bin(n)[2:]))
 pad_binary_list = lambda l : [0] * (maxbits - len(l)) + l
@@ -45,7 +45,7 @@ def run_nn_test(data, N, train_p, representation, randomize=True):
     test_labels = np.array(test_labels)
 
     model = keras.Sequential([
-        keras.layers.InputLayer(input_shape=((32,) if representation == 'binary' else (1,))),
+        keras.layers.InputLayer(input_shape=((maxbits,) if representation == 'binary' else (1,))),
         keras.layers.Dense(128, activation=tf.nn.relu),
         keras.layers.Dense(128, activation=tf.nn.relu),
         keras.layers.Dense(2, activation=tf.nn.softmax)

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from functools import partial
 import random, pickle
 
 from sieve import *
@@ -28,4 +29,24 @@ def gen_triangulars(N):
         s += 1
     return [(n, True) for n in triangulars] + [(n, False) for n in non_triangulars]
 
-save(gen_triangulars(100), 'data/tris')
+def gen_from(N, f):
+    triangulars     = {f(n) for n in range(N)}
+    s = 0
+    non_triangulars = set()
+    while len(non_triangulars) < N:
+        while s in triangulars:
+            s += 1
+        non_triangulars.add(s)
+        s += 1
+    return [(n, True) for n in triangulars] + [(n, False) for n in non_triangulars]
+
+facts = {0 : 1}
+def factorial(n):
+    if n not in facts:
+        facts[n] = n * factorial(n-1)
+    return facts[n]
+
+gen_factorials = partial(gen_from, f=factorial)
+
+save(gen_triangulars(10000), 'data/triangular')
+save(gen_factorials(10000), 'data/factorial')

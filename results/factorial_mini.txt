@@ -1,0 +1,24 @@
+grid {sence}: ./classifier data/factorial
+Learning split with 16 datapoints and p=0.8 training data
+16
+Epoch 1/5
+2018-10-01 17:36:03.769400: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+12/12 [==============================] - 0s 12ms/step - loss: 0.7136 - acc: 0.5000
+Epoch 2/5
+12/12 [==============================] - 0s 93us/step - loss: 0.6841 - acc: 0.5000
+Epoch 3/5
+12/12 [==============================] - 0s 97us/step - loss: 0.6566 - acc: 0.5000
+Epoch 4/5
+12/12 [==============================] - 0s 89us/step - loss: 0.6312 - acc: 0.7500
+Epoch 5/5
+12/12 [==============================] - 0s 82us/step - loss: 0.6067 - acc: 0.8333
+[[0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 1 0 0 0 1 0 0 1 1 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 1 1 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0]
+ [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0]]
+4/4 [==============================] - 0s 6ms/step
+Test accuracy: 0.5
+4/4 [==============================] - 0s 125us/step
+Accuracy from N=16 to the next power of ten:
+0.75
+grid {sence}:
