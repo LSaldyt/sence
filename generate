@@ -50,3 +50,4 @@ gen_factorials = partial(gen_from, f=factorial)
 
 save(gen_triangulars(10000), 'data/triangular')
 save(gen_factorials(10000), 'data/factorial')
+save(gen_evens(100) + gen_odds(100), 'data/evens')

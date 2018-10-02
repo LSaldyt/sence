@@ -1,0 +1,27 @@
+grid {sence}: ./classifier data/evens 
+Learning split with 161 datapoints and p=0.8 training data
+161
+Epoch 1/5
+2018-10-01 19:36:08.579847: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+128/128 [==============================] - 0s 1ms/step - loss: 0.6802 - acc: 0.6016
+Epoch 2/5
+128/128 [==============================] - 0s 51us/step - loss: 0.6200 - acc: 0.9141
+Epoch 3/5
+128/128 [==============================] - 0s 48us/step - loss: 0.5644 - acc: 1.0000
+Epoch 4/5
+128/128 [==============================] - 0s 47us/step - loss: 0.5061 - acc: 1.0000
+Epoch 5/5
+128/128 [==============================] - 0s 50us/step - loss: 0.4422 - acc: 1.0000
+[[0 0 0 ... 0 0 0]
+ [0 0 0 ... 0 1 0]
+ [0 0 0 ... 1 1 0]
+ ...
+ [0 0 0 ... 1 1 1]
+ [0 0 0 ... 1 1 0]
+ [0 0 0 ... 1 0 1]]
+33/33 [==============================] - 0s 797us/step
+Test accuracy: 1.0
+40/40 [==============================] - 0s 31us/step
+Accuracy from N=161 to the next power of ten:
+1.0
+
