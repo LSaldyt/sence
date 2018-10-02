@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+import random, pickle
+
+from sieve import *
+
+def save(data, filename):
+    random.shuffle(data)
+    with open(filename, 'wb') as outfile:
+        pickle.dump(data, outfile)
+
+def gen_evens(N, start=1):
+    return [(2 * n, True) for n in range(start, N+1)]
+
+def gen_odds(N, start=1):
+    return [(2 * n + 1, False) for n in range(start, N+1)]
+
+#data = [(n, True) for n in take(gen_primes(), N)] + [(n, False) for n in take(gen_composites(), N)]
+#save(gen_odds(10) + gen_evens(10), 'data/odds_evens.pkl')
+
+def gen_triangulars(N):
+    triangulars     = {n * (n-1) // 2 for n in range(N)}
+    s = 0
+    non_triangulars = set()
+    while len(non_triangulars) < N:
+        while s in triangulars:
+            s += 1
+        non_triangulars.add(s)
+        s += 1
+    return [(n, True) for n in triangulars] + [(n, False) for n in non_triangulars]
+
+save(gen_triangulars(100), 'data/tris')
