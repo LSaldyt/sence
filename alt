@@ -1,0 +1,17 @@
+#!/usr/bin/env python3.5
+from tensorflow.keras.models import *
+from tensorflow.keras.layers import *
+
+vocabulary = 100
+hidden_size = 128
+num_steps = 10
+use_dropout = False
+
+model = Sequential()
+model.add(Embedding(vocabulary, hidden_size, input_length=num_steps))
+model.add(LSTM(hidden_size, return_sequences=True))
+model.add(LSTM(hidden_size, return_sequences=True))
+if use_dropout:
+    model.add(Dropout(0.5))
+model.add(TimeDistributed(Dense(vocabulary)))
+model.add(Activation('softmax'))

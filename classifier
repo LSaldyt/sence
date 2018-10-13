@@ -5,6 +5,10 @@ import sys, pickle
 import tensorflow as tf
 from tensorflow import keras
 
+# Ugly please remove TODO FIXME thanks lol
+from tensorflow.keras.models import *
+from tensorflow.keras.layers import *
+
 # Helper libraries
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,6 +23,40 @@ def unpair(paired):
         A.append(a)
         B.append(b)
     return A, B
+
+def create_model(seq_len, embedding_size=1):
+    # The input shape is your sequence length and your token embedding size
+    inputs = keras.layers.Input(shape=(seq_len, embedding_size))
+
+    # Build a RNN encoder
+    encoder = keras.layers.LSTM(seq_len, return_sequences=False)(inputs)
+
+    # Repeat the encoding for every input to the decoder
+    encoding_repeat = keras.layers.RepeatVector(5)(encoder)
+
+    decoder = keras.layers.LSTM(seq_len, return_sequences=True)(encoding_repeat)
+
+    # Output each timestep into a fully connected layer
+    sequence_prediction = keras.layers.TimeDistributed(keras.layers.Dense(1, activation='linear'))(decoder)
+    return keras.models.Model(inputs, sequence_prediction)
+
+def create_model(seq_len):
+
+    vocabulary = 100
+    hidden_size = 128
+    num_steps = seq_len
+    use_dropout = False
+
+    model = Sequential()
+    model.add(Embedding(vocabulary, hidden_size, input_length=num_steps))
+    model.add(LSTM(hidden_size, return_sequences=True))
+    model.add(LSTM(hidden_size, return_sequences=True))
+    if use_dropout:
+        model.add(Dropout(0.5))
+    model.add(TimeDistributed(Dense(vocabulary)))
+    model.add(Activation('softmax'))
+    return model
+
 
 maxbits = 32
 sequence_length = 5
@@ -49,8 +87,9 @@ def run_nn_test(data, N, train_p, representation, randomize=True):
         keras.layers.InputLayer(input_shape=((sequence_length * maxbits,) if representation == 'binary' else (1,))),
         keras.layers.Dense(128, activation=tf.nn.relu),
         keras.layers.Dense(128, activation=tf.nn.relu),
-        keras.layers.Dense(maxbits, activation=tf.nn.sigmoid)
+        keras.layers.Dense(maxbits, activation=tf.nn.sigmoid, input_shape=(32,))
     ])
+    model = create_model(sequence_length * maxbits)
 
     model.compile(optimizer=tf.train.AdamOptimizer(),
                   loss='sparse_categorical_crossentropy',
@@ -78,7 +117,7 @@ def main(args):
     predict_p = 0.8
     size = 4
     representation = 'binary'
-    offset_range = 10
+    offset_range = 100
     data = sum([ 
                [([f(x) for x in range(i, i+size+1)], 
                    f(i+size+1))
