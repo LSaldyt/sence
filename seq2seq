@@ -1,0 +1,26 @@
+#!/usr/bin/env python3.5
+
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, LSTM, RepeatVector, TimeDistributed, Dense
+
+seq_len = 5
+embedding_size = 1
+
+# The input shape is your sequence length and your token embedding size
+inputs = Input(shape=(seq_len, embedding_size))
+
+# Build a RNN encoder
+encoder = LSTM(128, return_sequences=False)(inputs)
+
+# Repeat the encoding for every input to the decoder
+encoding_repeat = RepeatVector(5)(encoder)
+
+# Pass your (5, 128) encoding to the decoder
+decoder = LSTM(128, return_sequences=True)(encoding_repeat)
+
+# Output each timestep into a fully connected layer
+sequence_prediction = TimeDistributed(Dense(1, activation='linear'))(decoder)
+
+model = Model(inputs, sequence_prediction)
+model.compile('adam', 'mse')  # Or categorical_crossentropy
+#model.fit(X_train, y_train)

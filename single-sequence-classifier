@@ -10,7 +10,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import random
-from pprint import pprint
 
 def unpair(paired):
     A = []
@@ -20,13 +19,12 @@ def unpair(paired):
         B.append(b)
     return A, B
 
-maxbits = 32
-sequence_length = 5
+maxbits = 256
 
 to_binary_list  = lambda n : list(map(int, bin(n)[2:]))
 pad_binary_list = lambda l : [0] * (maxbits - len(l)) + l
-
 def binary(n):
+    #print(n)
     return pad_binary_list(to_binary_list(n))
 
 def run_nn_test(data, N, train_p, representation, randomize=True):
@@ -35,7 +33,8 @@ def run_nn_test(data, N, train_p, representation, randomize=True):
         random.shuffle(data)
 
     if representation == 'binary':
-        data = [(sum((binary(n) for n in ns), []), label) for ns, label in data]
+        data = [(binary(n), label) for n, label in data]
+
     split = int(N*train_p)
     train_ns, train_labels = unpair(data[:split])
     test_ns, test_labels   = unpair(data[split:])
@@ -46,10 +45,10 @@ def run_nn_test(data, N, train_p, representation, randomize=True):
     test_labels = np.array(test_labels)
 
     model = keras.Sequential([
-        keras.layers.InputLayer(input_shape=((sequence_length * maxbits,) if representation == 'binary' else (1,))),
+        keras.layers.InputLayer(input_shape=((maxbits,) if representation == 'binary' else (1,))),
         keras.layers.Dense(128, activation=tf.nn.relu),
         keras.layers.Dense(128, activation=tf.nn.relu),
-        keras.layers.Dense(maxbits, activation=tf.nn.sigmoid)
+        keras.layers.Dense(2, activation=tf.nn.softmax)
     ])
 
     model.compile(optimizer=tf.train.AdamOptimizer(),
@@ -71,23 +70,37 @@ def gen_odds(N, start=1):
 
 from sieve import gen_primes, gen_composites, take
 
-functions = [lambda x : x * 2]
-
 def main(args):
+    N = 10 ** 4
     train_p = 0.8
     predict_p = 0.8
-    size = 4
     representation = 'binary'
-    offset_range = 10
-    data = sum([ 
-               [([f(x) for x in range(i, i+size+1)], 
-                   f(i+size+1))
-               for i in range(offset_range)]
-               for f in functions], 
-               [])
-    pprint(data)
-    N = offset_range
+    #representation = 'decimal'
+
+    if len(args) > 0:
+        filename = args[0]
+        with open(filename, 'rb') as infile:
+            data = pickle.load(infile)
+        predict_data = data[int(predict_p * len(data)):]
+        data         = data[:int(predict_p * len(data)) + 1]
+        N = len(data)
+    else:
+        data = gen_evens(N) + gen_odds(N)
+        #data = [(n, True) for n in take(gen_primes(), N)] + [(n, False) for n in take(gen_composites(), N)]
+        predict_data = gen_evens(N*10, start=N) + gen_odds(N*10, start=N)
+        #predict_data = [(n, True) for n in take(gen_primes(data[N][0]), N*10)] + [(n, True) for n in take(gen_composites(data[N + 1][0]), N*10)]
+    if representation == 'binary':
+        predict_data = [(binary(n), label) for n, label in predict_data]
+    predict_ns, predict_labels = unpair(predict_data)
+    predict_ns     = np.array(predict_ns)
+    predict_labels = np.array(predict_labels)
+
+    print('Learning split with {} datapoints and p={} training data'.format(N, train_p))
+
     model = run_nn_test(data, N, train_p, representation, randomize=True)
+    extra_loss, extra_acc = model.evaluate(predict_ns, predict_labels)
+    print('Accuracy from N={} to the next power of ten:'.format(N))
+    print(extra_acc)
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
