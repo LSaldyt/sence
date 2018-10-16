@@ -32,28 +32,35 @@ def enumerate_relations(inputs, outputs, answer, operators, considering=None):
                     for i2, x2 in enumerate(outputs):
                         rules.add(previous.join(
                                   Rule([Partial(op, [RevIndex(inputs, i, 'inputs'), RevIndex(inputs, i2, 'inputs')], [])])))
+        for i2, x2 in enumerate(inputs):
+            for name, op in operators.items():
+                rules.add(previous.join(
+                          Rule([Partial(op, [RevIndex(inputs, i, 'inputs'), RevIndex(inputs, i2, 'inputs')], [])])))
+    for j, y in enumerate(outputs):
+        for j2, y2 in enumerate(outputs):
+            for name, op in operators.items():
+                rules.add(previous.join(
+                          Rule([Partial(op, [RevIndex(outputs, j, 'outputs'), RevIndex(outputs, j2, 'outputs')], [])])))
     return rules
 
 def tree(inputs, outputs, depth=1):
     considering = None
     for d in range(depth):
+        print('Considering functions of depth {}'.format(d))
         for i in range(1, len(inputs)):
             local_inputs  = inputs[:i + 1]
             local_outputs = outputs[:i]
             local_answer  = outputs[i]
             proposed = enumerate_relations(local_inputs, local_outputs,
-                                           answer=local_answer, operators=operators)
-            #pprint(proposed)
-            final = {rule for rule in proposed if rule.guess(local_inputs, local_outputs) == local_answer}
-            if final:
-                guesses = {f.guess(inputs, outputs) for f in final}
+                                           answer=local_answer, operators=operators, considering=considering)
+            considering = {rule for rule in proposed if rule.guess(local_inputs, local_outputs) == local_answer}
+            print(considering)
+            if considering and d == depth - 1:
                 correct = outputs[-1]
-                for f in final:
+                for f in considering:
                     print(f, ' gives:')
                     guess = f.guess(inputs, outputs[:-1])
                     print(guess)
                     print('correct:', outputs[-1])
                     if guess == correct:
-                        return
-            else:
-                considering = proposed
+                        return f

@@ -10,8 +10,10 @@ def main():
     #print(operators)
     N = 10
     a = 3
+
     def function(x): 
         return 1 if x == 1 else a + function(x-1)
+
     def function(x):
         if x == 1:
             return 1
@@ -19,10 +21,17 @@ def main():
             return 1
         else:
             return function(x-1) + function(x-2)
+
+    def function(x):
+        return x % 2
+
     inputs  = list(range(1, N+1))
     outputs = list(map(function, inputs))
 
-    tree(inputs, outputs, depth=3)
+    print(inputs)
+    print(outputs)
+
+    print(tree(inputs, outputs, depth=3))
 
 if __name__ == '__main__':
     main()

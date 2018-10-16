@@ -19,6 +19,7 @@ class Rule:
 
     def guess(self, inputs, outputs):
         working = self.partials[0].apply(inputs, outputs)
+        return working
         for partial in self.partials[1:]:
             print(partial)
             1/0
