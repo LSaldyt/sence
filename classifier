@@ -40,24 +40,6 @@ def create_model(seq_len, embedding_size=1):
     sequence_prediction = keras.layers.TimeDistributed(keras.layers.Dense(1, activation='linear'))(decoder)
     return keras.models.Model(inputs, sequence_prediction)
 
-def create_model(seq_len):
-
-    vocabulary = 100
-    hidden_size = 128
-    num_steps = seq_len
-    use_dropout = False
-
-    model = Sequential()
-    model.add(Embedding(vocabulary, hidden_size, input_length=num_steps))
-    model.add(LSTM(hidden_size, return_sequences=True))
-    model.add(LSTM(hidden_size, return_sequences=True))
-    if use_dropout:
-        model.add(Dropout(0.5))
-    model.add(TimeDistributed(Dense(vocabulary)))
-    model.add(Activation('softmax'))
-    return model
-
-
 maxbits = 32
 sequence_length = 5
 
@@ -85,11 +67,10 @@ def run_nn_test(data, N, train_p, representation, randomize=True):
 
     model = keras.Sequential([
         keras.layers.InputLayer(input_shape=((sequence_length * maxbits,) if representation == 'binary' else (1,))),
-        keras.layers.Dense(128, activation=tf.nn.relu),
-        keras.layers.Dense(128, activation=tf.nn.relu),
-        keras.layers.Dense(maxbits, activation=tf.nn.sigmoid, input_shape=(32,))
+        keras.layers.Dense(256, activation=tf.nn.relu),
+        keras.layers.Dense(256, activation=tf.nn.relu),
+        keras.layers.Dense(2000, activation=tf.nn.softmax)
     ])
-    model = create_model(sequence_length * maxbits)
 
     model.compile(optimizer=tf.train.AdamOptimizer(),
                   loss='sparse_categorical_crossentropy',
