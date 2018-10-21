@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+import numpy as np
+import matplotlib.pyplot as plt
+
+def f(i, j):
+    if ((i % 2 == 0 and j % 2 != 0) or 
+        (i % 2 != 0 and j % 2 == 0)):
+        return 1
+    else:
+        return 0
+
+def image(x, y):
+    pixels = np.zeros((x, y))
+    for i in range(x):
+        for j in range(y):
+            pixels[i, j] = f(i, j)
+    print(pixels)
+    return pixels
+
+image(10, 10)
+plt.imshow(image(10, 10))
+plt.show()
