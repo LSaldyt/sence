@@ -44,17 +44,17 @@ def enumerate_relations(inputs, outputs, answer, operators, considering=None):
     return rules
 
 def tree(inputs, outputs, depth=1):
-    considering = None
     for d in range(depth):
         print('Considering functions of depth {}'.format(d))
+        considering = None
         for i in range(1, len(inputs)):
             local_inputs  = inputs[:i + 1]
             local_outputs = outputs[:i]
             local_answer  = outputs[i]
             proposed = enumerate_relations(local_inputs, local_outputs,
-                                           answer=local_answer, operators=operators, considering=considering)
+                                           answer=local_answer, operators=operators, considering=None)
             considering = {rule for rule in proposed if rule.guess(local_inputs, local_outputs) == local_answer}
-            print(considering)
+            #print(considering)
             if considering and d == depth - 1:
                 correct = outputs[-1]
                 for f in considering:

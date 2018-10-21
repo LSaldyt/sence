@@ -22,9 +22,6 @@ def main():
         else:
             return function(x-1) + function(x-2)
 
-    def function(x):
-        return x % 2
-
     inputs  = list(range(1, N+1))
     outputs = list(map(function, inputs))
 
