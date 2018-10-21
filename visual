@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 import sys
+
+from math import sqrt
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -18,6 +21,12 @@ def fibb(x):
 
 def f(i, j):
     return fibb(i) + fibb(j)
+
+def circle(i, j):
+    return int(int(sqrt(i**2 + j**2)) == 50)
+
+def f(i, j):
+    return circle(i, j)
 
 def image(x, y):
     pixels = np.zeros((x, y))
