@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9,6 +10,15 @@ def f(i, j):
     else:
         return 0
 
+__fibb_cache__ = {0 : 0, 1 : 1, 2 : 1}
+def fibb(x):
+    if x not in __fibb_cache__:
+        __fibb_cache__[x] = fibb(x-1) + fibb(x-2)
+    return __fibb_cache__[x]
+
+def f(i, j):
+    return fibb(i) + fibb(j)
+
 def image(x, y):
     pixels = np.zeros((x, y))
     for i in range(x):
@@ -17,6 +27,6 @@ def image(x, y):
     print(pixels)
     return pixels
 
-image(10, 10)
-plt.imshow(image(10, 10))
+N = 50
+plt.imshow(image(N, N))
 plt.show()
