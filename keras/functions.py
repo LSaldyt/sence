@@ -21,9 +21,9 @@ def factorial(x):
     return x * factorial(x - 1)
 
 functions = {
-        'evens'      : lambda x : x * 2,
-        'squares'    : lambda x : x ** 2,
+        'evens'       : lambda x : x * 2,
+        'squares'     : lambda x : x ** 2,
         'triangular'  : lambda x : (x * (x - 1)) // 2,
-        #'fibbonacci' : fibbonacci
-        # 'factorial'  : factorial (Grow too fast for neural nets)
+        'fibbonacci'  : fibbonacci,
+         'factorial'  : factorial
         }

@@ -70,7 +70,7 @@ train_p = 0.5
 representation = 'binary'
 #representation = 'decimal'
 start = 2
-end = 15
+end = 7
 
 def main(args):
     if not os.path.isfile('accuracies.pkl'):
@@ -97,8 +97,6 @@ def main(args):
         with open('accuracies.pkl', 'rb') as infile:
             accuracies = pickle.load(infile)
     accuracies = accuracies.pivot(index='datapoints', columns='name', values='accuracies')
-    accuracies = accuracies[['primes', 'trangular', 'squares', 'evens']]
-    print(accuracies)
     sns.heatmap(accuracies, annot=True, vmin=0.0, vmax=1.0)
     plt.xlabel('Sequences')
     plt.ylabel('Total data points (trained on half)')

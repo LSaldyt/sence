@@ -1,11 +1,14 @@
 
-def generate_with(f, N):
+def generate_with(f, N, maxN=2**32):
     included = set()
     excluded = set()
     for i in range(N):
-        included.add(f(i))
+        y = f(i)
+        if y > maxN:
+            break
+        included.add(y)
     i = 0
-    while i < max(included) and len(excluded) < N:
+    while i < max(included) and i < maxN and len(excluded) < N:
         if i not in included:
             excluded.add(i)
         i += 1
