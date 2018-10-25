@@ -37,5 +37,5 @@ def image(x, y):
     return pixels
 
 N = 50
-plt.imshow(image(N, N))
+plt.imshow(image(N, N), cmap='inferno')
 plt.show()
