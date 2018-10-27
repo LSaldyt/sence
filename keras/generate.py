@@ -13,4 +13,3 @@ def generate_with(f, N, maxN=2**32):
             excluded.add(i)
         i += 1
     return [(x, True) for x in included] + [(x, False) for x in excluded]
-

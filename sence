@@ -1,34 +1,75 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.5
+import os, pickle
+from pprint import pprint
+
+import pandas
+import matplotlib
+import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib.style as style
+
 from methods.tree import tree
 from methods.arithmetic import operators
-#from methods.generate import generate
+from keras.single    import generate_accuracies, plot_accuracies
+from keras.functions import functions
+
+from matplotlib import rcParams
+rcParams.update({'figure.autolayout': True})
+#matplotlib.rc('axes', titlesize=36)
+
+def unpair(paired):
+    A = []
+    B = []
+    for a, b in paired:
+        A.append(a)
+        B.append(b)
+    return A, B
+
+def tree_test(f, N):
+    inputs  = list(range(1, N + 1))
+    outputs = list(map(f, inputs))
+    print(len(inputs))
+    learned = tree(inputs[:N//2], outputs[:N//2], depth=2)
+    if learned is None:
+        return 0.0
+    guesses = [learned.guess(inputs[:i], outputs[:i-1]) for i in range(N // 2, N + 1)]
+    validation = outputs[N//2-1:]
+    accuracy = (sum(int(guess == true) 
+                    for guess, true in 
+                    zip(guesses, validation)) / (len(validation)))
+    return accuracy
 
 def main():
-    #for item in generate():
-    #    print(item)
-    #1/0
-    #print(operators)
-    N = 10
-    a = 3
+    if not os.path.isfile('accuracies.pkl'):
+        accuracies = generate_accuracies(tree_test)
+        with open('accuracies.pkl', 'wb') as outfile:
+            pickle.dump(accuracies, outfile)
+    else:
+        with open('accuracies.pkl', 'rb') as infile:
+            accuracies = pickle.load(infile)
+    accuracies = pandas.DataFrame(accuracies)
+    with open('keras_accuracies.pkl', 'rb') as infile:
+        keras_accuracies = pickle.load(infile)
+    print(accuracies)
+    print(keras_accuracies)
+    get = lambda ds, name : list(ds[(ds.name == name)]['accuracies'])
+    #sns.set_style("darkgrid")
+    style.use('fivethirtyeight')
+    sns.set(rc={'figure.figsize':(6,3.5)}, font_scale=2.4)
 
-    def function(x): 
-        return 1 if x == 1 else a + function(x-1)
-
-    def function(x):
-        if x == 1:
-            return 1
-        elif x == 2:
-            return 1
-        else:
-            return function(x-1) + function(x-2)
-
-    inputs  = list(range(1, N+1))
-    outputs = list(map(function, inputs))
-
-    print(inputs)
-    print(outputs)
-
-    print(tree(inputs, outputs, depth=3))
+    print(list(accuracies[(accuracies.name == 'primes')]['accuracies']))
+    for function in ['fibonacci', 'primes']:
+        print(function)
+        print(get(accuracies, function))
+        print(get(keras_accuracies, function))
+        plt.plot(get(accuracies, function),       label='Explicit {}'.format(function), linewidth=5.0)
+        plt.plot(get(keras_accuracies, function), label='Neural {}'.format(function),   linewidth=5.0)
+    plt.title('Accuracy comparison of neural and explicit learning of integer sequences')
+    plt.xlabel('Log2 size of data set (training coefficient = 0.5)')
+    plt.ylabel('Accuracy')
+    plt.legend()
+    plt.show()
+    #plot_accuracies(accuracies)
 
 if __name__ == '__main__':
     main()

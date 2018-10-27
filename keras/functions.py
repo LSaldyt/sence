@@ -1,6 +1,6 @@
 from functools import wraps
 
-from sieve import take, gen_primes
+from .sieve import take, gen_primes
 
 def cached_from(d):
     def decorator(f):
@@ -54,9 +54,9 @@ functions = {
         'squares'     : lambda x : x ** 2,
         'triangular'  : lambda x : (x * (x - 1)) // 2,
         #'alternating' : alternating,
-        'fibbonacci'  : fibbonacci,
+        'fibonacci'  : fibbonacci,
          'factorial'  : factorial,
          'recaman'    : recaman,
-         'catalan'    : catalan,
+         #'catalan'    : catalan,
          'primes'     : prime
         }
