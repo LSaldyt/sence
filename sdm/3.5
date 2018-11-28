@@ -1,0 +1,156 @@
+#!/usr/bin/env python2
+import sdm as sdmlib
+import matplotlib.pyplot as plt
+from PIL import Image, ImageDraw, ImageFont
+import urllib, cStringIO
+import random
+from IPython.core.display import display, Image as IPythonImage
+#%matplotlib inline
+
+# In [2]:
+
+width = 30
+height = 30
+noise_flip = True
+
+# In [3]:
+
+def gen_img(letter='A'):
+    img = Image.new('RGBA', (30, 30), (255, 255, 255))
+    font = ImageFont.truetype('Arial.ttf', 30)
+    draw = ImageDraw.Draw(img)
+    draw.text((5, 0), letter, (0, 0, 0), font=font)
+    return img
+
+# In [4]:
+
+def gen_noise_add(img, p=0.15, flip=False):
+    img2 = img.copy()
+    draw = ImageDraw.Draw(img2)
+    for py in xrange(height):
+        for px in xrange(width):
+            if random.random() < p:
+                if flip:
+                    pixel = img.getpixel((px, py))
+                    value = sum([int(x/255+0.5) for x in pixel[:3]])//3
+                    assert value == 0 or value == 1
+                    value = (1 - value)*255
+                    draw.point((px, py), fill=(value, value, value))
+                else:
+                    draw.point((px, py), fill=(0, 0, 0))
+    return img2
+
+# In [5]:
+
+img = gen_img();
+img2 = gen_noise_add(img, p=0.05, flip=noise_flip)
+plt.subplot(1, 2, 1)
+plt.imshow(img)
+plt.subplot(1, 2, 2)
+plt.imshow(img2);
+
+plt.show()
+
+def to_bitstring(img):
+    v = []
+    bs = sdmlib.Bitstring.init_ones(1000)
+    for py in xrange(height):
+        for px in xrange(width):
+            pixel = img.getpixel((px, py))
+            value = sum([int(x/255+0.5) for x in pixel[:3]])//3
+            assert value == 0 or value == 1
+            idx = px+width*py
+            assert idx >= 0 and idx < 1000, 'Ops {} {} {}'.format(x, y, idx)
+            bs.set_bit(idx, value)
+            v.append(value)
+    v2 = [bs.get_bit(i) for i in xrange(height*width)]
+    assert v == v2
+    return bs
+
+def to_img(bs):
+    img = Image.new('RGBA', (30, 30), (255, 255, 255))
+    draw = ImageDraw.Draw(img)
+    for py in xrange(height):
+        for px in xrange(width):
+            idx = px+width*py
+            assert idx >= 0 and idx < 1000, 'Ops {} {} {}'.format(x, y, idx)
+            x = 255*bs.get_bit(idx)
+            draw.point((px, py), fill=(x, x, x))
+    return img
+
+bits = 1000
+sample = 1000000
+scanner_type = sdmlib.SDM_SCANNER_THREAD
+
+address_space = sdmlib.AddressSpace.init_from_b64_file('sdm-letters.as')
+counter = sdmlib.Counter.create_file('sdm-classification', bits, sample)
+sdm = sdmlib.SDM(address_space, counter, 451, scanner_type)
+
+for i in xrange(100):
+    print i,
+    b = sdmlib.Bitstring.init_random(1000)
+    sdm.write(b, b)
+
+
+def fill_memory(letter, label_bs, p=0.1, n=100):
+    cols = 15
+    rows = n//cols + 1
+    plt.figure(figsize=(20,10))
+    for i in xrange(n):
+        img = gen_img(letter=letter);
+        img2 = gen_noise_add(img, p=p, flip=noise_flip)
+        #display(img2)
+        plt.subplot(rows, cols, i+1)
+        plt.imshow(img2)
+        bs = to_bitstring(img2)
+        bs.xor(label_bs)
+        sdm.write(bs, bs)
+    plt.show()
+
+def read(letter, label_bs, n=6, p=0.2, radius=None):
+    n = 7
+    cols = 15
+    rows = n//cols + 1
+    plt.figure(figsize=(20,10))
+
+    img = gen_img(letter=letter);
+    img2 = gen_noise_add(img, p=p, flip=noise_flip)
+    plt.subplot(rows, cols, 1)
+    plt.imshow(img2)
+
+    for i in xrange(n):
+        bs2 = to_bitstring(img2)
+        bs2.xor(label_bs)
+        bs3 = sdm.read(bs2, radius=radius)
+        if bs3 == bs2:
+            break
+        bs3.xor(label_bs)
+        img3 = to_img(bs3)
+        plt.subplot(rows, cols, i+2)
+        plt.imshow(img3)
+        img2 = img3
+
+labels = list('ABCD8OQ')
+label_to_bs = {}
+for x in labels:
+    label_to_bs[x] = sdmlib.Bitstring.init_random(1000)
+
+for x in labels:
+    print 'Training for label {}...'.format(x)
+    fill_memory(x, label_to_bs[x])
+
+read('C', label_to_bs['C'])
+read('C', label_to_bs['D'])
+read('C', label_to_bs['O'])
+
+read('A', label_to_bs['C'], p=0.1)
+
+read('A', sdmlib.Bitstring.init_random(1000), p=0)
+
+def intersection(a, b):
+    bs1 = to_bitstring(gen_img(letter=a))
+    bs2 = to_bitstring(gen_img(letter=b))
+    hl1 = set(address_space.scan_thread(bs1, 451, 4))
+    hl2 = set(address_space.scan_thread(bs2, 451, 4))
+    return len(hl1 & hl2)
+print intersection('B', '8')

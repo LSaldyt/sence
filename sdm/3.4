@@ -1,0 +1,68 @@
+#!/usr/bin/env python2
+
+import sdm as sdmlib
+import matplotlib.pyplot as plt
+from IPython.display import clear_output
+
+bits = 1000
+sample = 1000000
+radius = 451
+scanner_type = sdmlib.SDM_SCANNER_OPENCL
+
+#address_space = sdmlib.AddressSpace.init_from_b64_file('sdm-10000w.as')
+#counter = sdmlib.Counter.load_file('sdm-10000w')
+address_space = sdmlib.AddressSpace.init_random(bits, sample)
+counter = sdmlib.Counter.init_zero(bits, sample)
+sdm = sdmlib.SDM(address_space, counter, radius, scanner_type)
+
+for i in range(10000):
+    clear_output(wait=True)
+    print i
+    bs = sdmlib.Bitstring.init_random(1000)
+    sdm.write(bs, bs)
+
+b = sdmlib.Bitstring.init_random(1000)
+sdm.write(b, b)
+
+from IPython.display import clear_output
+
+max_iter = 10
+samples = 1
+
+distances = []
+x = range(0, 1001)
+for i, dist in enumerate(x):
+    clear_output(wait=True)
+    print 'Distance: {:4d} ({:.2f}%)'.format(dist, 100.*(i+1)/len(x))
+    v = []
+    for j in range(samples):
+        c = sdmlib.Bitstring.init_from_bitstring(b)
+        c.flip_random_bits(dist)
+        assert c.distance_to(b) == dist
+        d = sdm.iter_read(c, max_iter=max_iter)
+        v.append(d.distance_to(b))
+    distances.append(1.0*sum(v)/len(v))
+print 'Done!'
+
+plt.figure(figsize=(8, 6), dpi=100)
+plt.plot(x, distances)
+plt.plot(x, x, 'k')
+plt.plot(x, [500]*len(x), 'k:')
+#plt.title('Kanerva\'s Figure 7.3')
+if max_iter == 1:
+    plt.ylabel('New distance (after a single read)')
+else:
+    plt.ylabel('New distance (after {} iterative reads)'.format(max_iter))
+plt.xlabel('Old distance')
+plt.grid()
+#plt.axis([0, 1000, 0, 1000]);
+plt.axis([x[0], x[-1], x[0], x[-1]]);
+
+c = sdmlib.Bitstring.init_from_bitstring(b)
+c.flip_random_bits(1000)
+d = c
+print 0, b.distance_to(d)
+for i in xrange(10):
+    d = sdm.read(d)
+    print i+1, b.distance_to(d)
+
