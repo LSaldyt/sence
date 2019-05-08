@@ -22,14 +22,14 @@ def mandelbrot(i, j, N):
     return iteration
 
 def main(args):
-    N = 1000
+    N = 500
     M = np.zeros((N, N))
     for i in range(N):
         for j in range(N):
             M[i, j] = mandelbrot(i, j, N)
     #1/0
     print(M)
-    plt.imshow(M)
+    plt.imshow(M, cmap='magma')
     plt.show()
     return 0
 
